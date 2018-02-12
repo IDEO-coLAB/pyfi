@@ -1,11 +1,11 @@
 const net = require('net');
 const randomstring = require('randomstring');
 const spawn = require('child_process').spawn;
-const debug = require('debug')('tydy');
+const debug = require('debug')('pythonic');
 
 
-class Tydy {
-  constructor(pyModules=[]){
+class Pythonic {
+  constructor(pyModules=[], cwd='.'){
     this.startPython = this.startPython.bind(this);
     this.openSocket = this.openSocket.bind(this);
     this.callPython = this.callPython.bind(this);
@@ -18,7 +18,7 @@ class Tydy {
     this.pythonProcesses = {};
     this.run = {};
 
-    this.startPython().then(()=>{
+    this.startPython(cwd).then(()=>{
       this.openSocket().then(()=>{
         this.importModules(pyModules).then(()=>{
           if(this.readyCallback){
@@ -29,24 +29,17 @@ class Tydy {
     }).catch(error => console.log(error))
 
   }
-  startPython(){
+  startPython(cwd){
     return new Promise((resolve, reject) => {
-      this.pythonProcess = spawn('pipenv', ['run', 'python', 'tydy.py'], {cwd: '.'});
-      console.log('starting python');
-
-      this.pythonProcess.on('error', error => console.error)
-
-      this.pythonProcess.on('data', (data) => {
-        console.error(data.toString());
-      })
+      debug('Starting Python');
+      this.pythonProcess = spawn('python', ['pythonic.py'], {cwd});
 
       this.pythonProcess.stderr.on('data', (error) => {
         console.error('PYTHON:', error.toString());
       });
 
       this.pythonProcess.stdout.on('data', (data) => {
-
-        if(data.toString().includes('TIDI_UP')){
+        if(data.toString().includes('PYTHONIC_UP')){
           resolve();
         }
         debug('PYTHON:', data.toString());
@@ -127,21 +120,13 @@ class Tydy {
 
   callPython(request){
     const pid = randomstring.generate(5);
-    this.pythonSocket.write(JSON.stringify(Object.assign(request, {pid})));
+    const fullRequest = JSON.stringify(Object.assign(request, {pid}));
+    debug(`Sending: ${fullRequest}`);
+    this.pythonSocket.write(fullRequest);
     return new Promise((resolve, reject)=>{
        this.pythonProcesses[pid] = {resolve, reject}
     })
   }
 }
 
-module.exports = Tydy;
-
-// const t = new Tydy(['analysis']);
-//
-// setTimeout(()=>{
-//   t.importModules(['analysis']).then(()=>{
-//     t.run.analysis.dummyAnalysis.analyzeThis(['hey there'], {})
-//     .then(data => console.log('it worked', data))
-//     .catch(console.log)
-//   })
-// }, 2000)
+module.exports = Pythonic;

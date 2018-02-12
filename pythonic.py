@@ -16,7 +16,6 @@ def importModule(module_name):
 class Runner(protocol.Protocol):
     def dataReceived(self, data):
         parsed_data = json.loads(data)
-        print parsed_data
 
         if(parsed_data['action'] == 'RUN'):
             status, body = self.run(parsed_data['module'], parsed_data['function'], parsed_data['args'], parsed_data['kwargs'])
@@ -25,7 +24,7 @@ class Runner(protocol.Protocol):
             status, body = self.importModule(parsed_data['module'])
 
         else:
-            print "Received action of unexpected type. Expected 'RUN' or 'IMPORT', got '" + command + "'."
+            print("Received action of unexpected type. Expected 'RUN' or 'IMPORT', got '" + command + "'.")
 
         self.transport.write(json.dumps({'pid': parsed_data['pid'], 'status': status, 'body': body}))
 
@@ -81,7 +80,7 @@ class RunnerFactory(protocol.Factory):
         return Runner()
 
 def onStart():
-    print 'TIDI_UP'
+    print('PYTHONIC_UP')
 
 endpoints.serverFromString(reactor, "tcp:1234").listen(RunnerFactory())
 reactor.callWhenRunning(onStart)
