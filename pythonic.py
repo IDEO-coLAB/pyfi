@@ -25,7 +25,6 @@ class Runner(protocol.Protocol):
     def dataReceived(self, data):
         parsed_data = json.loads(data)
         command = parsed_data['action']
-
         if(command == 'RUN'):
             status, body = self.run(parsed_data['module'], parsed_data['function'], parsed_data['args'], parsed_data['kwargs'])
 
@@ -73,7 +72,6 @@ class Runner(protocol.Protocol):
 
     def getModuleTree(self, module):
         result = []
-        print( dir(module))
         for m in [x for x in dir(module) if not x.startswith('__')]:
             f = getattr(module, m)
             if callable(f):

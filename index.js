@@ -70,7 +70,6 @@ class Pythonic {
   }
 
   handlePythonData(data){
-    console.log('HANDLE PYTHON DATA:', data)
     const res = JSON.parse(data);
     const openProcess = this.pythonProcesses[res.pid];
     if(openProcess){
