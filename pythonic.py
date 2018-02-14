@@ -34,7 +34,7 @@ class Runner(protocol.Protocol):
         else:
             print("Received action of unexpected type. Expected 'RUN' or 'IMPORT', got '" + command + "'.")
 
-        self.transport.write(json.dumps({'pid': parsed_data['pid'], 'status': status, 'body': body}) + 	u'\u2404'.encode('utf8'))
+        self.transport.write((json.dumps({'pid': parsed_data['pid'], 'status': status, 'body': body}) + u'\u2404').encode('utf8'))
 
 
 
