@@ -1,32 +1,41 @@
 from twisted.internet import protocol, reactor, endpoints
 from twisted.python import log
 import sys
+import os
 import json
 import importlib
 log.startLogging(sys.stdout)
 
-import analysis.dummyAnalysis
+import analysis
 
 modules = {}
 
-def importModule(module_name):
-    modules[module_name] = importlib.import_module(module_name)
-    return modules[module_name]
+def importModule(module_data):
+    if 'dir' in module_data:
+        sys.path.append(os.path.join(os.getcwd(), module_data['dir']))
+    name = module_data['name']
+    if 'from' in module_data:
+        module = importlib.import_module('.' + name, module_data['from'])
+    else:
+        module = importlib.import_module(name)
+    modules[name] = module
+    return module
 
 class Runner(protocol.Protocol):
     def dataReceived(self, data):
         parsed_data = json.loads(data)
+        command = parsed_data['action']
 
-        if(parsed_data['action'] == 'RUN'):
+        if(command == 'RUN'):
             status, body = self.run(parsed_data['module'], parsed_data['function'], parsed_data['args'], parsed_data['kwargs'])
 
-        elif(parsed_data['action'] == 'IMPORT'):
+        elif(command == 'IMPORT'):
             status, body = self.importModule(parsed_data['module'])
 
         else:
             print("Received action of unexpected type. Expected 'RUN' or 'IMPORT', got '" + command + "'.")
 
-        self.transport.write(json.dumps({'pid': parsed_data['pid'], 'status': status, 'body': body}))
+        self.transport.write(json.dumps({'pid': parsed_data['pid'], 'status': status, 'body': body}) + 	u'\u2404'.encode('utf8'))
 
 
 
@@ -49,9 +58,9 @@ class Runner(protocol.Protocol):
 
         return (status, result)
 
-    def importModule(self, module_name):
+    def importModule(self, module_data):
         try:
-            module = importModule(module_name)
+            module = importModule(module_data)
             result = self.getModuleTree(module)
             status = 'OK'
         except KeyboardInterrupt:
@@ -64,6 +73,7 @@ class Runner(protocol.Protocol):
 
     def getModuleTree(self, module):
         result = []
+        print( dir(module))
         for m in [x for x in dir(module) if not x.startswith('__')]:
             f = getattr(module, m)
             if callable(f):
