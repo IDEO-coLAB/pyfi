@@ -36,9 +36,9 @@ class Pythonic {
       debug('Starting Python');
       this.pythonProcess = spawn('python', [`${__dirname}/pythonic.py`], {cwd: '.'});
 
-      this.pythonProcess.stderr.on('data', (error) => {
-        console.error('PYTHON:', error.toString());
-      });
+      // this.pythonProcess.stderr.on('data', (error) => {
+      //   console.error('PYTHON:', error.toString());
+      // });
 
       this.pythonProcess.stdout.on('data', (data) => {
         if(data.toString().includes('PYTHONIC_UP')){
