@@ -6,20 +6,7 @@ import json
 import importlib
 log.startLogging(sys.stdout)
 
-sys.path.append(os.path.join(os.getcwd(), '../drugbust/data-science'))
-
-print(sys.path)
-
-# from modelmanager import ModelManager
-#
-# print(dir(ModelManager))
-#
-# m = ModelManager()
-
-
 modules = {}
-
-
 
 class Runner(protocol.Protocol):
     def dataReceived(self, data):
@@ -77,8 +64,6 @@ class Runner(protocol.Protocol):
             callables = list(set(callables) & set(module_data['objects']))
 
         result.append({'name': name, 'callables': callables})
-
-        print(dir(module))
 
         if 'init' in module_data:
             for c in module_data['init']:
