@@ -36,9 +36,9 @@ class Pythonic {
       debug('Starting Python');
       this.pythonProcess = spawn('python', [`${__dirname}/pythonic.py`], {cwd: '.'});
 
-      // this.pythonProcess.stderr.on('data', (error) => {
-      //   console.error('PYTHON:', error.toString());
-      // });
+      this.pythonProcess.stderr.on('data', (error) => {
+        console.error('PYTHON:', error.toString());
+      });
 
       this.pythonProcess.stdout.on('data', (data) => {
         if(data.toString().includes('PYTHONIC_UP')){
@@ -86,9 +86,11 @@ class Pythonic {
           action: 'IMPORT',
           module
         })
-        .then(moduleTree => {
-          this.moduleTree.push({[module.name]: moduleTree});
-          this.run[module.name] = this.getCallables(moduleTree, module.name);
+        .then(results => {
+          results.forEach(mod => {
+            this.moduleTree.push({[mod.name]: mod.callables});
+            this.run[mod.name] = this.getCallables(mod.callables, mod.name);
+          })
           resolve();
         })
         .catch(reject)

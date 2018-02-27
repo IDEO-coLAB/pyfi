@@ -1,24 +1,24 @@
 const Pythonic = require('./index');
 
-console.time('pythonic-whole')
-
 const py = new Pythonic([{
-  name: 'dummyAnalysis',
-  from: 'analysis',
-  // dir: ''
+  dir: 'test-python',
+  name: 'testpython',
+  // package: 'MyPackage',
+  objects: [
+    'how_long_is_this_string'
+  ],
+  init: [
+    {
+      class: 'StringMeasurer',
+      as: 'sm',
+      args: [],
+      kwargs: {}
+    }
+  ]
 }])
 
 py.onReady(()=>{
-  console.log('Pythonic up!');
-  console.time('pythonic')
-  py.run.dummyAnalysis.howLongIsThisString(['yoyoyo!']).then((data)=>{
-    console.log(data);
-    console.timeEnd('pythonic')
-    console.timeEnd('pythonic-whole')
-  })
-
-  console.time('js')
-    console.log('there are ' + 'yoyoyo!'.length + ' characters.' )
-  console.timeEnd('js')
+  console.log(py.run)
+  py.run.sm.measure_this_string(['howlongisthis??'],{}).then(res => console.log(res))
 
 })

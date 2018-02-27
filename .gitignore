@@ -2,3 +2,4 @@ node_modules
 *.pyc
 venv
 venv3
+test-private.js

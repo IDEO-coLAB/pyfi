@@ -6,20 +6,20 @@ import json
 import importlib
 log.startLogging(sys.stdout)
 
-import analysis
+sys.path.append(os.path.join(os.getcwd(), '../drugbust/data-science'))
+
+print(sys.path)
+
+# from modelmanager import ModelManager
+#
+# print(dir(ModelManager))
+#
+# m = ModelManager()
+
 
 modules = {}
 
-def importModule(module_data):
-    if 'dir' in module_data:
-        sys.path.append(os.path.join(os.getcwd(), module_data['dir']))
-    name = module_data['name']
-    if 'from' in module_data:
-        module = importlib.import_module('.' + name, module_data['from'])
-    else:
-        module = importlib.import_module(name)
-    modules[name] = module
-    return module
+
 
 class Runner(protocol.Protocol):
     def dataReceived(self, data):
@@ -41,45 +41,66 @@ class Runner(protocol.Protocol):
 
     def run(self, module_name, function_name, function_args, function_kwargs):
 
-        try:
-            # TODO: How efficient is this? Seems like it could be a drag.
-            module_tree = module_name.split('.')
-            module = modules[module_tree.pop(0)]
-            while len(module_tree) > 0:
-                module = getattr(module, module_tree.pop(0))
-            result = getattr(module, function_name)(*function_args, **function_kwargs)
-            status = 'OK'
-        except KeyboardInterrupt:
-            raise
-        except Exception as e:
-            result = e
-            status = 'ERROR'
+        # try:
+        # TODO: How efficient is this? Seems like it could be a drag.
+        module_tree = module_name.split('.')
+        module = modules[module_tree.pop(0)]
+        while len(module_tree) > 0:
+            module = getattr(module, module_tree.pop(0))
+        result = getattr(module, function_name)(*function_args, **function_kwargs)
+        status = 'OK'
+        # except KeyboardInterrupt:
+        #     raise
+        # except Exception as e:
+        #     result = e
+        #     status = 'ERROR'
 
         return (status, result)
 
     def importModule(self, module_data):
-        try:
-            module = importModule(module_data)
-            result = self.getModuleTree(module)
-            status = 'OK'
-        except KeyboardInterrupt:
-            raise
-        except Exception as e:
-            result = e
-            status = 'ERROR'
+        # try:
+        if 'dir' in module_data:
+            sys.path.append(os.path.join(os.getcwd(), module_data['dir']))
+            print(sys.path)
+        name = module_data['name']
+        if 'package' in module_data:
+            module = importlib.import_module('.' + name, package=module_data['package'])
+        else:
+            module = importlib.import_module(name)
+
+        modules[name] = module
+
+        result = []
+        callables = self.getCallables(module)
+
+        if 'objects' in module_data:
+            callables = list(set(callables) & set(module_data['objects']))
+
+        result.append({'name': name, 'callables': callables})
+
+        print(dir(module))
+
+        if 'init' in module_data:
+            for c in module_data['init']:
+                modules[c['as']] = getattr( module, c['class'])(*c['args'], **c['kwargs'])
+                result.append({'name': c['as'], 'callables': self.getCallables(modules[c['as']])})
+
+        status = 'OK'
+        # except KeyboardInterrupt:
+        #     raise
+        # except Exception as e:
+        #     result = e
+        #     status = 'ERROR'
 
         return (status, result)
 
-    def getModuleTree(self, module):
+    def getCallables(self, module):
         result = []
         for m in [x for x in dir(module) if not x.startswith('__')]:
             f = getattr(module, m)
             if callable(f):
                 result.append(m)
-                return result
-            else:
-                result.append({m: self.getModuleTree(getattr(module, x))})
-                return result
+        return result
 
 
 
