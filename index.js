@@ -127,7 +127,7 @@ class Pythonic {
 
   callPython(request){
     const pid = randomstring.generate(5);
-    const fullRequest = JSON.stringify(Object.assign(request, {pid}));
+    const fullRequest = JSON.stringify(Object.assign(request, {pid})) + '\u2404';
     debug(`Sending: ${fullRequest}`);
     this.pythonSocket.write(fullRequest);
     return new Promise((resolve, reject)=>{

@@ -9,19 +9,21 @@ log.startLogging(sys.stdout)
 modules = {}
 
 class Runner(protocol.Protocol):
-    def dataReceived(self, data):
-        parsed_data = json.loads(data)
-        command = parsed_data['action']
-        if(command == 'RUN'):
-            status, body = self.run(parsed_data['module'], parsed_data['function'], parsed_data['args'], parsed_data['kwargs'])
+    def dataReceived(self, raw_data):
+        requests = [ r for r in raw_data.decode('utf8').split(u'\u2404') if len(r) > 2]
+        for data in requests:
+            parsed_data = json.loads(str(data))
+            command = parsed_data['action']
+            if(command == 'RUN'):
+                status, body = self.run(parsed_data['module'], parsed_data['function'], parsed_data['args'], parsed_data['kwargs'])
 
-        elif(command == 'IMPORT'):
-            status, body = self.importModule(parsed_data['module'])
+            elif(command == 'IMPORT'):
+                status, body = self.importModule(parsed_data['module'])
 
-        else:
-            print("Received action of unexpected type. Expected 'RUN' or 'IMPORT', got '" + command + "'.")
+            else:
+                print("Received action of unexpected type. Expected 'RUN' or 'IMPORT', got '" + command + "'.")
 
-        self.transport.write((json.dumps({'pid': parsed_data['pid'], 'status': status, 'body': body}) + u'\u2404').encode('utf8'))
+            self.transport.write((json.dumps({'pid': parsed_data['pid'], 'status': status, 'body': body}) + u'\u2404').encode('utf8'))
 
 
 
