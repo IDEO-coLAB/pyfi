@@ -20,6 +20,9 @@ class Runner(protocol.Protocol):
             elif(command == 'IMPORT'):
                 status, body = self.importModule(parsed_data['module'])
 
+            elif(command == 'SET_PATH'):
+                status, body = self.set_path(parsed_data['path'])
+
             else:
                 print("Received action of unexpected type. Expected 'RUN' or 'IMPORT', got '" + command + "'.")
 
@@ -48,14 +51,12 @@ class Runner(protocol.Protocol):
 
     def importModule(self, module_data):
         # try:
-        if 'dir' in module_data:
-            sys.path.append(os.path.join(os.getcwd(), module_data['dir']))
-            print(sys.path)
         name = module_data['name']
         if 'package' in module_data:
             module = importlib.import_module('.' + name, package=module_data['package'])
         else:
             module = importlib.import_module(name)
+
 
         modules[name] = module
 
@@ -88,6 +89,21 @@ class Runner(protocol.Protocol):
             if callable(f):
                 result.append(m)
         return result
+
+    def set_path(self, path_list):
+        try:
+            for path in path_list:
+                sys.path.append(os.path.join(os.getcwd(), path))
+            status = 'OK'
+            result = ''
+
+            return (status, result)
+        except KeyboardInterrupt:
+            raise
+        except Exception as e:
+            result = 'error setting path'
+            status = 'ERROR'
+
 
 
 

@@ -6,7 +6,7 @@ const path = require('path');
 
 
 class Pythonic {
-  constructor(pyModules=[]){
+  constructor(settings){
     this.startPython = this.startPython.bind(this);
     this.openSocket = this.openSocket.bind(this);
     this.callPython = this.callPython.bind(this);
@@ -22,10 +22,12 @@ class Pythonic {
 
     this.startPython().then(()=>{
       this.openSocket().then(()=>{
-        this.importModules(pyModules).then(()=>{
-          if(this.readyCallback){
-            this.readyCallback()
-          }
+        this.setPythonPath(settings.path).then(()=>{
+          this.importModules(settings.imports).then(()=>{
+            if(this.readyCallback){
+              this.readyCallback()
+            }
+          }).catch(error => console.log(error))
         }).catch(error => console.log(error))
       }).catch(error => console.log(error))
     }).catch(error => console.log(error))
@@ -78,7 +80,15 @@ class Pythonic {
     }
   }
 
+  setPythonPath(path){
+    return this.callPython({
+      action: 'SET_PATH',
+      path: Array.isArray(path) ? path : [path]
+    })
+  }
+
   importModules(modules){
+    // console.log(modules)
     return new Promise((resolve, reject) => {
       modules.forEach(module => {
 
