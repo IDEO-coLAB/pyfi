@@ -19,6 +19,7 @@ class Pythonic {
     this.pythonProcesses = {};
     this.run = {};
     this.moduleTree = [];
+    this.port = settings.port;
 
     this.startPython().then(()=>{
       this.openSocket().then(()=>{
@@ -32,11 +33,14 @@ class Pythonic {
       }).catch(error => console.log(error))
     }).catch(error => console.log(error))
 
+    process.on('exit', this.end)
   }
+
+
   startPython(){
     return new Promise((resolve, reject) => {
       debug('Starting Python');
-      this.pythonProcess = spawn('python', [`${__dirname}/pythonic.py`], {cwd: '.'});
+      this.pythonProcess = spawn('python', [`${__dirname}/pythonic.py`, this.port], {cwd: '.'});
 
       this.pythonProcess.stderr.on('data', (error) => {
         console.error('PYTHON:', error.toString());
@@ -49,9 +53,18 @@ class Pythonic {
         debug('PYTHON:', data.toString());
       });
     })
-
-
   }
+
+  end(){
+    this.closeSocket();
+    this.killPython();
+  }
+
+
+  killPython(){
+    this.pythonProcess.kill("SIGINT");
+  }
+
   openSocket(){
     return new Promise((resolve, reject) => {
       this.pythonSocket = new net.Socket();
@@ -69,6 +82,10 @@ class Pythonic {
         debug('Connection closed');
       });
     })
+  }
+
+  closeSocket(){
+    this.pythonSocket.destroy();
   }
 
   handlePythonData(data){
@@ -94,18 +111,46 @@ class Pythonic {
 
         this.callPython({
           action: 'IMPORT',
-          module
+          module: {
+            name: module.from ? module.from : module.import,
+            // TODO: fix nested ternary cuz who do you think you are?
+            from_list: module.from ? Array.isArray(module.import) ? module.import : [module.import] : []
+          }
         })
         .then(results => {
-          results.forEach(mod => {
-            this.moduleTree.push({[mod.name]: mod.callables});
-            this.run[mod.name] = this.getCallables(mod.callables, mod.name);
-          })
+          this.handleImportResults(results);
           resolve();
         })
         .catch(reject)
       })
     });
+  }
+
+  initClass(options){
+    return new Promise((resolve, reject) => {
+      this.callPython(
+        Object.assign(
+          {
+            action: 'INIT_CLASS',
+            // set defaults for args and kwargs
+            args: [],
+            kwargs: {}
+          },
+          // merge options over defaults
+          options
+        )
+      )
+      .then(results => {
+        this.handleImportResults(results);
+        resolve();
+      })
+      .catch(reject)
+    })
+  }
+
+  handleImportResults(results){
+    this.moduleTree.concat(results);
+    this.run = Object.assign({}, this.run, this.getCallables(results));
   }
 
   getCallables(moduleTree, treeLoc){
@@ -118,6 +163,7 @@ class Pythonic {
             action: 'RUN',
             module: modName,
             function: element,
+            // TODO: allow for more natural handling of args and kwargs
             args: Array.isArray(args) ? args : [],
             kwargs: Array.isArray(args) ? kwargs : args
           })
@@ -162,4 +208,18 @@ class Pythonic {
   }
 }
 
-module.exports = Pythonic;
+const proxyHandler = {
+  get: (target, key, receiver) => {
+    if( key === '_' ){
+      return target
+    }else if( target.run && key in target.run ){
+      return target.run[key]
+    }else{
+      return target[key]
+    }
+  }
+}
+
+module.exports = (settings) => {
+  return new Proxy(new Pythonic(settings), proxyHandler)
+}

@@ -4,6 +4,7 @@ import sys
 import os
 import json
 import importlib
+import inspect
 log.startLogging(sys.stdout)
 
 modules = {}
@@ -23,6 +24,9 @@ class Runner(protocol.Protocol):
             elif(command == 'SET_PATH'):
                 status, body = self.set_path(parsed_data['path'])
 
+            elif(command == 'INIT_CLASS'):
+                status, body = self.init_class(parsed_data['class'], parsed_data['as'], parsed_data['args'], parsed_data['kwargs'])
+
             else:
                 print("Received action of unexpected type. Expected 'RUN' or 'IMPORT', got '" + command + "'.")
 
@@ -34,12 +38,9 @@ class Runner(protocol.Protocol):
     def run(self, module_name, function_name, function_args, function_kwargs):
 
         # try:
-        # TODO: How efficient is this? Seems like it could be a drag.
-        module_tree = module_name.split('.')
-        module = modules[module_tree.pop(0)]
-        while len(module_tree) > 0:
-            module = getattr(module, module_tree.pop(0))
-        result = getattr(module, function_name)(*function_args, **function_kwargs)
+        call = self.get_module(module_name, function_name)
+
+        result = call(*function_args, **function_kwargs)
         status = 'OK'
         # except KeyboardInterrupt:
         #     raise
@@ -48,30 +49,30 @@ class Runner(protocol.Protocol):
         #     status = 'ERROR'
 
         return (status, result)
+
+    def get_module(self, module_name, function_name):
+        if len(module_name) > 0:
+            module_tree = module_name.split('.')
+            module = modules[module_tree.pop(0)]
+            while len(module_tree) > 0:
+                module = module[module_tree.pop(0)]
+
+        else:
+            module_tree = []
+            module = modules
+        try:
+            # the function is attached directly to the nested modules dictionary
+            return module[function_name]
+        except TypeError:
+            # the function is attached to a module or class instance
+            return getattr(module, function_name)
+
 
     def importModule(self, module_data):
-        # try:
         name = module_data['name']
-        if 'package' in module_data:
-            module = importlib.import_module('.' + name, package=module_data['package'])
-        else:
-            module = importlib.import_module(name)
-
-
-        modules[name] = module
-
-        result = []
-        callables = self.getCallables(module)
-
-        if 'objects' in module_data:
-            callables = list(set(callables) & set(module_data['objects']))
-
-        result.append({'name': name, 'callables': callables})
-
-        if 'init' in module_data:
-            for c in module_data['init']:
-                modules[c['as']] = getattr( module, c['class'])(*c['args'], **c['kwargs'])
-                result.append({'name': c['as'], 'callables': self.getCallables(modules[c['as']])})
+        from_list = module_data['from_list']
+        import_results = __import__(name, globals(), locals(), from_list)
+        result = self.attachImport(import_results, name, from_list)
 
         status = 'OK'
         # except KeyboardInterrupt:
@@ -81,6 +82,32 @@ class Runner(protocol.Protocol):
         #     status = 'ERROR'
 
         return (status, result)
+
+    def attachImport(self, import_results, name, from_list=[]):
+        # from MODULE import OBJECT1, OBJECT2
+        # from PACKAGE.MODULE import OBJECT1, OBJECT2
+        # from PACKAGE import MODULE
+        if len(from_list) > 0:
+            for obj in from_list:
+                obj_attr = getattr(import_results, obj)
+                if inspect.ismodule(obj_attr):
+                    mod_name = obj
+                    return self.attachImport(obj_attr, mod_name)
+                else:
+                    modules[obj] = obj_attr
+            result = from_list
+        # from MODULE import *
+        elif from_list == ['*']:
+            d = self.getCallables(import_results)
+            for obj in d:
+                modules[obj] = getattr(import_results, obj)
+            result = d
+        # import MODULE
+        else:
+            d = self.getCallables(import_results)
+            modules[name] = import_results
+            result = [{name: d}]
+        return result
 
     def getCallables(self, module):
         result = []
@@ -103,6 +130,20 @@ class Runner(protocol.Protocol):
         except Exception as e:
             result = 'error setting path'
             status = 'ERROR'
+
+    def init_class(self, classpath, as_name, args, kwargs):
+        if '.' in classpath:
+            classpath_list = classpath.split('.')
+            class_name = classpath_list.pop()
+            path = '.'.join(classpath_list)
+        else:
+            path = ''
+            class_name = classpath
+        modules[as_name] = self.get_module(path, class_name)(*args, **kwargs)
+        result = [{as_name: self.getCallables(modules[as_name])}]
+        status = 'OK'
+
+        return (status, result)
 
 
 

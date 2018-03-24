@@ -17,14 +17,14 @@
 
 # from PACKAGE.MODULE import OBJECT
 
-# from test_package.test_package_module import give_me_five
-# print give_me_five()
+from test_package.test_package_module import give_me_five
+print(give_me_five())
 
 
 # from PACKAGE import MODULE
 
-from test_package import test_package_module
-print test_package_module.give_me_five()
+# from test_package import test_package_module
+# print test_package_module.give_me_five()
 
 
 # from PACKAGE import OBJECT
