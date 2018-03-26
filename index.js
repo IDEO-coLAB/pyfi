@@ -215,7 +215,7 @@ const proxyHandler = {
     }else if( target.run && key in target.run ){
       return target.run[key]
     }else{
-      return target[key]
+      return undefined
     }
   }
 }

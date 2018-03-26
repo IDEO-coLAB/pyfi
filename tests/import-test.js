@@ -20,7 +20,7 @@ test('import MODULE', (t)=>{
   })
 })
 
-test('from MODULE import OBJECT, insta', (t)=>{
+test('from MODULE import OBJECT', (t)=>{
   t.plan(1);
   const py = Pythonic({
     path: './tests/test-python', // equivalent to setting PYTHONPATH
@@ -38,7 +38,7 @@ test('from MODULE import OBJECT, insta', (t)=>{
 })
 
 
-test('from MODULE import OBJECT', (t)=>{
+test('from MODULE import OBJECT, init class', (t)=>{
   t.plan(1);
   const py = Pythonic({
     path: './tests/test-python', // equivalent to setting PYTHONPATH
@@ -69,7 +69,7 @@ test('from PACKAGE.MODULE import OBJECT', (t)=>{
       from: 'test_package.test_package_module'
     }]
   })
-  py.onReady(()=>{
+  py._.onReady(()=>{
     py.give_me_five().then(res =>{
       t.equal(res, 5)
       py._.end();
@@ -86,7 +86,7 @@ test('from PACKAGE import MODULE', (t)=>{
       from: 'test_package'
     }]
   })
-  py.onReady(()=>{
+  py._.onReady(()=>{
     py.test_package_module.give_me_five().then(res =>{
       t.equal(res, 5)
       py._.end();
