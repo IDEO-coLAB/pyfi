@@ -8,7 +8,7 @@
     "postinstall": "pip install -r requirements.txt"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "randomstring": "^1.1.5"
   },
