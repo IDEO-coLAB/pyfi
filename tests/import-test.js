@@ -1,95 +1,93 @@
-var test = require('tape');
-const Pythonic = require('../')
+const test = require('tape');
+const Pythonic = require('../');
 
 // TODO: we need proper error handling for rejected promises!!
 
-test('import MODULE', (t)=>{
+test('import MODULE', (t) => {
   t.plan(1);
   const py = Pythonic({
     path: './tests/test-python', // equivalent to setting PYTHONPATH
     imports: [{
-      import: 'test_module'
-    }]
-  })
-  py._.onReady(()=>{
-    console.log(py.run)
-    py.test_module.how_long_is_this_string(['12']).then(res =>{
-      t.equal(res, 2)
+      import: 'test_module',
+    }],
+  });
+  py._.onReady(() => {
+    console.log(py.run);
+    py.test_module.how_long_is_this_string(['12']).then((res) => {
+      t.equal(res, 2);
       py._.end();
-    })
-  })
-})
+    });
+  });
+});
 
-test('from MODULE import OBJECT', (t)=>{
+test('from MODULE import OBJECT', (t) => {
   t.plan(1);
   const py = Pythonic({
     path: './tests/test-python', // equivalent to setting PYTHONPATH
     imports: [{
       import: ['how_long_is_this_string', 'StringMeasurer'],
-      from: 'test_module'
-    }]
-  })
-  py._.onReady(()=>{
-    py.how_long_is_this_string(['12']).then(res =>{
-      t.equal(res, 2)
+      from: 'test_module',
+    }],
+  });
+  py._.onReady(() => {
+    py.how_long_is_this_string(['12']).then((res) => {
+      t.equal(res, 2);
       py._.end();
-    })
-  })
-})
+    });
+  });
+});
 
 
-test('from MODULE import OBJECT, init class', (t)=>{
+test('from MODULE import OBJECT, init class', (t) => {
   t.plan(1);
   const py = Pythonic({
     path: './tests/test-python', // equivalent to setting PYTHONPATH
     imports: [{
       import: ['how_long_is_this_string', 'StringMeasurer'],
-      from: 'test_module'
-    }]
-  })
-  py._.onReady(()=>{
-    py._.initClass({class: 'StringMeasurer', as: 'sm'}).then( () =>{
-      py.sm.measure_this_string(['123']).then( res => {
-        t.equal(res, 3)
+      from: 'test_module',
+    }],
+  });
+  py._.onReady(() => {
+    py._.initClass({ class: 'StringMeasurer', as: 'sm' }).then(() => {
+      py.sm.measure_this_string(['123']).then((res) => {
+        t.equal(res, 3);
         py._.end();
-      }).catch(e => {console.log(e)})
-    }).catch(e => {console.log(e)})
-  })
-})
+      }).catch((e) => { console.log(e); });
+    }).catch((e) => { console.log(e); });
+  });
+});
 
 
-
-
-test('from PACKAGE.MODULE import OBJECT', (t)=>{
+test('from PACKAGE.MODULE import OBJECT', (t) => {
   t.plan(1);
   const py = Pythonic({
     path: './tests/test-python', // equivalent to setting PYTHONPATH
     imports: [{
       import: 'give_me_five',
-      from: 'test_package.test_package_module'
-    }]
-  })
-  py._.onReady(()=>{
-    py.give_me_five().then(res =>{
-      t.equal(res, 5)
+      from: 'test_package.test_package_module',
+    }],
+  });
+  py._.onReady(() => {
+    py.give_me_five().then((res) => {
+      t.equal(res, 5);
       py._.end();
-    })
-  })
-})
+    });
+  });
+});
 
-test('from PACKAGE import MODULE', (t)=>{
+test('from PACKAGE import MODULE', (t) => {
   t.plan(1);
   const py = Pythonic({
     path: './tests/test-python', // equivalent to setting PYTHONPATH
     imports: [{
       import: 'test_package_module',
-      from: 'test_package'
-    }]
-  })
-  py._.onReady(()=>{
-    py.test_package_module.give_me_five().then(res =>{
-      t.equal(res, 5)
+      from: 'test_package',
+    }],
+  });
+  py._.onReady(() => {
+    py.test_package_module.give_me_five().then((res) => {
+      t.equal(res, 5);
       py._.end();
-    })
-  })
-})
+    });
+  });
+});

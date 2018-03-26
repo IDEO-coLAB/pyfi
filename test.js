@@ -5,42 +5,40 @@ const py = new Pythonic([{
   name: 'testpython',
   // package: 'MyPackage',
   objects: [
-    'how_long_is_this_string'
+    'how_long_is_this_string',
   ],
   init: [
     {
       class: 'StringMeasurer',
       as: 'sm',
       args: [],
-      kwargs: {}
-    }
-  ]
-},{
+      kwargs: {},
+    },
+  ],
+}, {
   name: 'testpackagemodule',
   package: 'testpackage',
   objects: [
-    'give_me_five'
-  ]
-}])
+    'give_me_five',
+  ],
+}]);
 
 
-py.onReady(()=>{
-  console.log(py.run)
+py.onReady(() => {
+  console.log(py.run);
 
   py.run.sm.measure_this_string(
-    ['howlongisthis??'],    //args
-    {}                      //kwargs
-  ).then(res => console.log(res))
+    ['howlongisthis??'], // args
+    {}, // kwargs
+  ).then(res => console.log(res));
 
   py.run.testpython.how_long_is_this_string(
     ['howlongisthis??'],
-    {}
-  ).then(res => console.log(res))
+    {},
+  ).then(res => console.log(res));
 
   py.run.testpackagemodule.give_me_five(
     [],
-    {}
-  ).then(res => console.log(res))
-
-
-})
+    {},
+  ).then(res => console.log(res));
+});
