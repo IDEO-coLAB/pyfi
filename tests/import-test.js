@@ -12,9 +12,11 @@ test('import MODULE', (t) => {
     }],
   });
   py._.onReady(() => {
-    console.log(py.run);
     py.test_module.how_long_is_this_string(['12']).then((res) => {
       t.equal(res, 2);
+      py._.end();
+    }).catch((error) => {
+      t.fail(error);
       py._.end();
     });
   });
@@ -32,6 +34,9 @@ test('from MODULE import OBJECT', (t) => {
   py._.onReady(() => {
     py.how_long_is_this_string(['12']).then((res) => {
       t.equal(res, 2);
+      py._.end();
+    }).catch((error) => {
+      t.fail(error);
       py._.end();
     });
   });
@@ -52,8 +57,14 @@ test('from MODULE import OBJECT, init class', (t) => {
       py.sm.measure_this_string(['123']).then((res) => {
         t.equal(res, 3);
         py._.end();
-      }).catch((e) => { console.log(e); });
-    }).catch((e) => { console.log(e); });
+      }).catch((error) => {
+        t.fail(error);
+        py._.end();
+      });
+    }).catch((error) => {
+      t.fail(error);
+      py._.end();
+    });
   });
 });
 
@@ -71,6 +82,9 @@ test('from PACKAGE.MODULE import OBJECT', (t) => {
     py.give_me_five().then((res) => {
       t.equal(res, 5);
       py._.end();
+    }).catch((error) => {
+      t.fail(error);
+      py._.end();
     });
   });
 });
@@ -87,6 +101,9 @@ test('from PACKAGE import MODULE', (t) => {
   py._.onReady(() => {
     py.test_package_module.give_me_five().then((res) => {
       t.equal(res, 5);
+      py._.end();
+    }).catch((error) => {
+      t.fail(error);
       py._.end();
     });
   });

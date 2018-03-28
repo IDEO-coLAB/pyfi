@@ -40,7 +40,11 @@ class Pythonic {
       this.pythonProcess = spawn('python', [`${__dirname}/pythonic.py`, this.port], { cwd: '.' });
 
       this.pythonProcess.stderr.on('data', (error) => {
-        console.error('PYTHON:', error.toString());
+        if (this.pythonErrorCallback) {
+          this.pythonErrorCallback(error);
+        } else {
+          throw new Error(`PYTHON: ${error.toString()}`);
+        }
       });
 
       this.pythonProcess.stdout.on('data', (data) => {
@@ -156,6 +160,10 @@ class Pythonic {
 
   onReady(callback) {
     this.readyCallback = callback;
+  }
+
+  onPythonError(callback) {
+    this.pythonErrorCallback = callback;
   }
 
   callPython(request) {

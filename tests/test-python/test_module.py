@@ -1,6 +1,5 @@
 
 def how_long_is_this_string(thing):
-    # raise Exception('It done broke')
     return len(thing)
 
 class StringMeasurer():
