@@ -28,10 +28,10 @@ class Pythonic {
             if (this.readyCallback) {
               this.readyCallback();
             }
-          }).catch(error => console.log(error));
-        }).catch(error => console.log(error));
-      }).catch(error => console.log(error));
-    }).catch(error => console.log(error));
+          }).catch((error) => { throw error; });
+        }).catch((error) => { throw error; });
+      }).catch((error) => { throw error; });
+    }).catch((error) => { throw error; });
 
     process.on('exit', this.end);
   }

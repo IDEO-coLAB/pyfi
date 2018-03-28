@@ -35,24 +35,24 @@ class Runner(protocol.Protocol):
 
 
 
-    def run(self, module_name, function_name, function_args, function_kwargs):
+    def run(self, mod_path, function_name, function_args, function_kwargs):
 
-        # try:
-        call = self.get_module(module_name, function_name)
+        try:
+            call = self.get_module(mod_path, function_name)
 
-        result = call(*function_args, **function_kwargs)
-        status = 'OK'
-        # except KeyboardInterrupt:
-        #     raise
-        # except Exception as e:
-        #     result = e
-        #     status = 'ERROR'
+            result = call(*function_args, **function_kwargs)
+            status = 'OK'
+        except KeyboardInterrupt:
+            raise
+        except Exception as e:
+            result = repr(e)
+            status = 'ERROR'
 
         return (status, result)
 
-    def get_module(self, module_name, function_name):
-        if len(module_name) > 0:
-            module_tree = module_name.split('.')
+    def get_module(self, mod_path, function_name):
+        if len(mod_path) > 0:
+            module_tree = mod_path.split('.')
             module = modules[module_tree.pop(0)]
             while len(module_tree) > 0:
                 module = module[module_tree.pop(0)]
@@ -69,17 +69,19 @@ class Runner(protocol.Protocol):
 
 
     def importModule(self, module_data):
-        name = module_data['name']
-        from_list = module_data['from_list']
-        import_results = __import__(name, globals(), locals(), from_list)
-        result = self.attachImport(import_results, name, from_list)
+        try:
+            name = module_data['name']
+            from_list = module_data['from_list']
+            import_results = __import__(name, globals(), locals(), from_list)
+            result = self.attachImport(import_results, name, from_list)
 
-        status = 'OK'
-        # except KeyboardInterrupt:
-        #     raise
-        # except Exception as e:
-        #     result = e
-        #     status = 'ERROR'
+            status = 'OK'
+
+        except KeyboardInterrupt:
+            raise
+        except Exception as e:
+            result = repr(e)
+            status = 'ERROR'
 
         return (status, result)
 
