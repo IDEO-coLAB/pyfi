@@ -1,11 +1,9 @@
 from twisted.internet import protocol, reactor, endpoints
-from twisted.python import log
 import sys
 import os
 import json
 import importlib
 import inspect
-log.startLogging(sys.stdout)
 
 modules = {}
 
@@ -18,6 +16,9 @@ class Runner(protocol.Protocol):
             if(command == 'RUN'):
                 status, body = self.run(parsed_data['module'], parsed_data['function'], parsed_data['args'], parsed_data['kwargs'])
 
+            elif(command == 'PING'):
+                status, body = ('OK', 'PONG')
+
             elif(command == 'IMPORT'):
                 status, body = self.importModule(parsed_data['module'])
 
@@ -28,7 +29,8 @@ class Runner(protocol.Protocol):
                 status, body = self.init_class(parsed_data['class'], parsed_data['as'], parsed_data['args'], parsed_data['kwargs'])
 
             else:
-                print("Received action of unexpected type. Expected 'RUN' or 'IMPORT', got '" + command + "'.")
+                status = 'ERROR'
+                body = "Received action of unexpected type. Expected 'PING, ''RUN', 'IMPORT', 'SET_PATH', or 'INIT_CLASS'; got '" + command + "'."
 
             self.transport.write((json.dumps({'pid': parsed_data['pid'], 'status': status, 'body': body}) + u'\u2404').encode('utf8'))
 
@@ -148,15 +150,10 @@ class Runner(protocol.Protocol):
         return (status, result)
 
 
-
-
 class RunnerFactory(protocol.Factory):
     def buildProtocol(self, addr):
         return Runner()
 
-def onStart():
-    print('PYTHONIC_UP')
 
-endpoints.serverFromString(reactor, "tcp:1234").listen(RunnerFactory())
-reactor.callWhenRunning(onStart)
+endpoints.StandardIOEndpoint(reactor).listen(RunnerFactory())
 reactor.run()

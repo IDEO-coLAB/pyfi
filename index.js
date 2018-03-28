@@ -8,7 +8,6 @@ const path = require('path');
 class Pythonic {
   constructor(settings) {
     this.startPython = this.startPython.bind(this);
-    this.openSocket = this.openSocket.bind(this);
     this.callPython = this.callPython.bind(this);
     this.handlePythonData = this.handlePythonData.bind(this);
     this.importModules = this.importModules.bind(this);
@@ -22,13 +21,11 @@ class Pythonic {
     this.port = settings.port;
 
     this.startPython().then(() => {
-      this.openSocket().then(() => {
-        this.setPythonPath(settings.path).then(() => {
-          this.importModules(settings.imports).then(() => {
-            if (this.readyCallback) {
-              this.readyCallback();
-            }
-          }).catch((error) => { throw error; });
+      this.setPythonPath(settings.path).then(() => {
+        this.importModules(settings.imports).then(() => {
+          if (this.readyCallback) {
+            this.readyCallback();
+          }
         }).catch((error) => { throw error; });
       }).catch((error) => { throw error; });
     }).catch((error) => { throw error; });
@@ -47,45 +44,30 @@ class Pythonic {
       });
 
       this.pythonProcess.stdout.on('data', (data) => {
-        if (data.toString().includes('PYTHONIC_UP')) {
-          resolve();
-        }
-        debug('PYTHON:', data.toString());
+        data.toString().split('\u2404').forEach((res) => {
+          if (res.length > 2) {
+            this.handlePythonData(res);
+          }
+        });
+        debug('Received:', data.toString());
+      });
+
+      this.callPython({
+        action: 'PING',
+      }).then(() => {
+        this.pythonUp = true;
+        resolve();
       });
     });
   }
 
   end() {
-    this.closeSocket();
     this.killPython();
   }
 
 
   killPython() {
     this.pythonProcess.kill('SIGINT');
-  }
-
-  openSocket() {
-    return new Promise((resolve, reject) => {
-      this.pythonSocket = new net.Socket();
-      this.pythonSocket.connect(1234, '127.0.0.1', () => {
-        debug('Connected');
-        resolve();
-      });
-
-      this.pythonSocket.on('data', (data) => {
-        debug(`Received: ${data}`);
-        data.toString().split('\u2404').slice(0, -1).forEach(this.handlePythonData);
-      });
-
-      this.pythonSocket.on('close', () => {
-        debug('Connection closed');
-      });
-    });
-  }
-
-  closeSocket() {
-    this.pythonSocket.destroy();
   }
 
   handlePythonData(data) {
@@ -180,7 +162,8 @@ class Pythonic {
     const pid = randomstring.generate(5);
     const fullRequest = `${JSON.stringify(Object.assign(request, { pid }))}\u2404`;
     debug(`Sending: ${fullRequest}`);
-    this.pythonSocket.write(fullRequest);
+    this.pythonProcess.stdin.write(fullRequest);
+    // this.pythonProcess.stdin.end();
     return new Promise((resolve, reject) => {
       this.pythonProcesses[pid] = { resolve, reject };
     });
