@@ -136,16 +136,22 @@ class Runner(protocol.Protocol):
             status = 'ERROR'
 
     def init_class(self, classpath, as_name, args, kwargs):
-        if '.' in classpath:
-            classpath_list = classpath.split('.')
-            class_name = classpath_list.pop()
-            path = '.'.join(classpath_list)
-        else:
-            path = ''
-            class_name = classpath
-        modules[as_name] = self.get_module(path, class_name)(*args, **kwargs)
-        result = [{as_name: self.getCallables(modules[as_name])}]
-        status = 'OK'
+        try:
+            if '.' in classpath:
+                classpath_list = classpath.split('.')
+                class_name = classpath_list.pop()
+                path = '.'.join(classpath_list)
+            else:
+                path = ''
+                class_name = classpath
+            modules[as_name] = self.get_module(path, class_name)(*args, **kwargs)
+            result = [{as_name: self.getCallables(modules[as_name])}]
+            status = 'OK'
+        except KeyboardInterrupt:
+            raise
+        except Exception as e:
+            result = repr(e)
+            status = 'ERROR'
 
         return (status, result)
 
