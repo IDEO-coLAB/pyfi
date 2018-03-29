@@ -128,12 +128,13 @@ class Runner(protocol.Protocol):
             status = 'OK'
             result = ''
 
-            return (status, result)
         except KeyboardInterrupt:
             raise
         except Exception as e:
             result = 'error setting path'
             status = 'ERROR'
+
+        return (status, result)
 
     def init_class(self, classpath, as_name, args, kwargs):
         try:
