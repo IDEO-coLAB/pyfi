@@ -1,6 +1,6 @@
 # Pythonic
 
-Use Python form within node!
+Use Python form within Node ✨
 
 Pythonic is designed for prototyping apps with data-driven Python backends. **It is not recommended for scalable or production-ready apps.** For that, you might want to look at a micro-service architecture.
 
