@@ -10,6 +10,22 @@ This package can be used along with [Pythonic-Client](https://github.com/ideo-co
 
 Python is the language of choice for data science and machine learning (as well as other applications), and a node stack is an excellent choice for prototyping highly-interactive apps. Pythonic makes it straightforward to take advantage of both of these strengths simultaneously.
 
+## Installation
+
+*Gotcha Warning!* Pythonic will install its' own Python dependancies after `npm install pythonic`, so be sure that you're working within the python environment that you'll want to call your imported Python from when you install this package.
+
+If you already have the Python environment, be sure you working inside it and just:
+```
+npm install pythonic
+```
+
+If you're creating a new Python environment when you install this, we'd recommend using [virtualenv](https://virtualenv.pypa.io/en/stable/), which might look something like:
+```
+virtualenv -p python3 venv
+source venv/bin/activate
+npm install pythonic
+```
+
 ## Basic Usage
 
 Pythonic tries to mimics how you'd use Python in, well, Python.
@@ -54,7 +70,7 @@ py._.onReady(() => {
 });
 ```
 
-## Docs
+## Reference
 
 ### Pythonic(_{options}_)
 Returns a `Pythonic` instance, starts a python kernel and attaches callables in node as described in options.
@@ -62,9 +78,11 @@ Returns a `Pythonic` instance, starts a python kernel and attaches callables in 
 ### Options
 
 *`path`* Array|String
+
 The path or paths to append to the `PYTHONPATH`
 
 *`imports`* Array as `{import, [from]}`
+
 Describes which Python modules to import. Supports these patterns from Python:
 ```py
 from MODULE import OBJECT1, OBJECT2
@@ -78,7 +96,7 @@ from MODULE import *
 ```
 
 
-### Calling imported Python functions
+### Importing and Calling Python Functions
 
 All imports are attached to the `Pythonic` instance as they would be to the global namespace in Python. Only callables are made available to Node (not constants).
 
@@ -121,7 +139,7 @@ and now we'll be able to do this:
   })
 ```
 
-#### Handing arguments to Python
+### Handing arguments to Python
 Since JavaScript doesn't have a notion of Keyword Arguments, instead you can make calls to Python that contain arguments like so:
 
 ```js
@@ -130,7 +148,7 @@ Since JavaScript doesn't have a notion of Keyword Arguments, instead you can mak
 You may omit either `[args]` or `{kwargs}` if the function you're calling doesn't require them.
 
 
-#### Instantiating Python classes
+### Instantiating Python classes
 Say you've imported a Python class:
 ```js
 const py = Pythonic({
@@ -169,7 +187,7 @@ Attach a callback function to call when the instance of Pythonic is ready.
 Instantiate a python class and attach it to the instance of Pythonic. Returns a Promise. See [Instantiating Python Classes](#instantiating-python-classes) above.
 
 *`_.importModules(_[modules]_)`*
-Import modules after the initial init. Follows the same pattern as in the [init options](#options).
+Import modules after the initial init. Follows the same pattern as the [init options](#options) (see [Importing and Calling Python Functions](#importing-and-calling-python-functions) for examples).
 
 #### What's with the \_?
 Since the `py.` namespaces is reserved for the python modules imported by the user, instance methods on the `Pythonic` object are proxied to `py._.`.
