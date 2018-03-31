@@ -42,6 +42,26 @@ test('from MODULE import OBJECT', (t) => {
   });
 });
 
+test('from BUILTIN_MODULE import OBJECT', (t) => {
+  t.plan(1);
+  const py = Pythonic({
+    path: './tests/test-python', // equivalent to setting PYTHONPATH
+    imports: [{
+      import: 'localtime',
+      from: 'time',
+    }],
+  });
+  py._.onReady(() => {
+    py.localtime().then((res) => {
+      t.pass(`time: ${res}`);
+      py._.end();
+    }).catch((error) => {
+      t.fail(error);
+      py._.end();
+    });
+  });
+});
+
 
 test('from MODULE import OBJECT, init class', (t) => {
   t.plan(1);
