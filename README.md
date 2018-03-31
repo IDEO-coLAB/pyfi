@@ -181,12 +181,15 @@ The instance will continue to be available as `py.mc` with all of it's callable 
 ### Methods
 
 **`_.onReady(callback)`**
+
 Attach a callback function to call when the instance of Pythonic is ready.
 
 **`_.initClass({options})`**
+
 Instantiate a python class and attach it to the instance of Pythonic. Returns a Promise. See [Instantiating Python Classes](#instantiating-python-classes) above.
 
 **`_.importModules([modules])`**
+
 Import modules after the initial init. Follows the same pattern as the [init options](#options) (see [Importing and Calling Python Functions](#importing-and-calling-python-functions) for examples).
 
 #### What's with the \_?
