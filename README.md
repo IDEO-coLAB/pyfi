@@ -2,17 +2,17 @@
 
 Use Python form within node!
 
-Pythonic is designed for prototyping apps with data-driven Python backends. It is not recommended for scalable or production-ready apps – for that, you might want to look at a micro-service architecture.
+Pythonic is designed for prototyping apps with data-driven Python backends. **It is not recommended for scalable or production-ready apps.** For that, you might want to look at a micro-service architecture.
 
 This package can be used along with [Pythonic-Client](https://github.com/ideo-colab/pythonic-client) to quickly make Python functionality available on the fronted.
 
-## Why?
+### Why?
 
 Python is the language of choice for data science and machine learning (as well as other applications), and a node stack is an excellent choice for prototyping highly-interactive apps. Pythonic makes it straightforward to take advantage of both of these strengths simultaneously.
 
 ## Installation
 
-*Gotcha Warning!* Pythonic will install its' own Python dependancies after `npm install pythonic`, so be sure that you're working within the python environment that you'll want to call your imported Python from when you install this package.
+**IMPORTANT!** Pythonic will install its' own Python dependancies after `npm install pythonic`, so be sure that you're working within the python environment that you'll want to call your imported Python from when you install this package.
 
 If you already have the Python environment, be sure you working inside it and just:
 ```
@@ -28,7 +28,7 @@ npm install pythonic
 
 ## Basic Usage
 
-Pythonic tries to mimics how you'd use Python in, well, Python.
+Pythonic mimics how you'd use Python in, well, Python.
 
 So say we have this Python module:
 `fancycomputation.py`
@@ -157,7 +157,7 @@ const py = Pythonic({
   ]
   })
 ```
-Pythonic allows you to create and use an instance of that class:
+`Pythonic` allows you to create and use an instance of that class:
 ```js
 py._.initClass(
   {
