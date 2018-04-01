@@ -12,7 +12,7 @@ Python is the language of choice for data science and machine learning (as well 
 
 ## Installation
 
-**IMPORTANT!** Pythonic will install its' own Python dependancies after `npm install pythonic`, so be sure that you're working within the python environment that you'll want to call your imported Python from when you install this package.
+**IMPORTANT!** Pythonic will install its' own Python dependancies (using pip) after `npm install pythonic`, so be sure that you're working within the python environment used by the Python you'll be importing.
 
 If you already have the Python environment, be sure you working inside it and just:
 ```
@@ -28,9 +28,9 @@ npm install pythonic
 
 ## Basic Usage
 
-Pythonic mimics how you'd use Python in, well, Python.
+Pythonic mimics how you'd use Python normally.
 
-So say we have this Python module:
+Say we have this Python module:
 `fancycomputation.py`
 ```py
 def my_very_fancy_function(first, second, commentary='nice job!'):
@@ -38,7 +38,7 @@ def my_very_fancy_function(first, second, commentary='nice job!'):
   return str(first + second) + ' commentary'
 ```
 
-In another Python module, after setting a `PYTHONPATH` to that module, we could call it like this:
+In another Python module, after setting a `PYTHONPATH` to that module, we could call it:
 ```py
 from fancycomputation import my_very_fancy_function
 
@@ -72,16 +72,16 @@ py._.onReady(() => {
 
 ## Reference
 
-### Pythonic(_{options}_)
+### Pythonic({options})
 Returns a `Pythonic` instance, starts a python kernel and attaches callables in node as described in options.
 
 ### Options
 
-*`path`* Array|String
+**`path`** Array|String
 
 The path or paths to append to the `PYTHONPATH`
 
-*`imports`* Array as `{import, [from]}`
+**`imports`** Array as `{import, [from]}`
 
 Describes which Python modules to import. Supports these patterns from Python:
 ```py
@@ -102,22 +102,22 @@ All imports are attached to the `Pythonic` instance as they would be to the glob
 
 All calls to Python functions return a promise that resolves to the result.
 
-So, for example:
+For example:
 ```js
 const py = Pythonic({
   imports:[
     {from: 'my_mod', import: ['my_func', 'my_other_func']}
   ]
-  })
+ });
 ```
-will make `my_func` and `my_other_func` available like so:
+will make `my_func` and `my_other_func` available:
 ```js
-  py.my_func().then(result => {
-    console.log(result)
-  })
-  py.my_other_func().then(result => {
-    console.log(result)
-  })
+py.my_func().then(result => {
+  console.log(result)
+});
+py.my_other_func().then(result => {
+  console.log(result)
+});
 ```
 
 
@@ -127,25 +127,25 @@ const py = Pythonic({
   imports:[
     {import: 'my_other_mod'}
   ]
-  })
+});
 ```
 and now we'll be able to do this:
 ```js
-  py.my_other_mod.do_this().then(result => {
-    console.log(result)
-  })
-  py.my_other_mod.do_that().then(result => {
-    console.log(result)
-  })
+py.my_other_mod.do_this().then(result => {
+  console.log(result)
+});
+py.my_other_mod.do_that().then(result => {
+  console.log(result)
+});
 ```
 
 ### Handing arguments to Python
-Since JavaScript doesn't have a notion of Keyword Arguments, instead you can make calls to Python that contain arguments like so:
+Since JavaScript doesn't have a notion of keyword arguments, instead you can make calls to Python that contain arguments using an array of positional arguments and an object of keyword arguments:
 
 ```js
-  py.my_function([args], {kwargs})
+py.my_function([args], {kwargs})
 ```
-You may omit either `[args]` or `{kwargs}` if the function you're calling doesn't require them.
+You may omit either `[args]` or `{kwargs}` if the function you're calling doesn't require them, but to keep the notation explicit you must always wrap positional arguments in an array.
 
 
 ### Instantiating Python classes
@@ -155,7 +155,7 @@ const py = Pythonic({
   imports:[
     {from: 'my_mod', import: 'MyClass'}
   ]
-  })
+});
 ```
 `Pythonic` allows you to create and use an instance of that class:
 ```js
@@ -166,14 +166,14 @@ py._.initClass(
     args: [/*init args*/],
     kwargs: {/*init kwargs*/}
   }
-)
+);
 // the initClass method returns a promise
 .then(()=>{
   // once the class is init'ed we can call it:
   py.mc.instace_method(['good stuff']).then(result => {
     console.log(result)
   })
-})
+});
 ```
 The instance will continue to be available as `py.mc` with all of it's callable methods attached.
 
