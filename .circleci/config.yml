@@ -21,3 +21,9 @@ jobs:
       - checkout
       - run: npm install
       - run: npm test
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test-3.4
+      - test-2.7
