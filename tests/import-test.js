@@ -52,7 +52,7 @@ test('from BUILTIN_MODULE import OBJECT', (t) => {
     }],
   });
   py._.onReady(() => {
-    py.localtime().then((res) => {
+    py.time().then((res) => {
       t.pass(`time: ${res}`);
       py._.end();
     }).catch((error) => {
