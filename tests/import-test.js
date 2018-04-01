@@ -47,7 +47,7 @@ test('from BUILTIN_MODULE import OBJECT', (t) => {
   const py = Pythonic({
     path: './tests/test-python', // equivalent to setting PYTHONPATH
     imports: [{
-      import: 'localtime',
+      import: 'time',
       from: 'time',
     }],
   });
