@@ -192,3 +192,11 @@ Import modules after the initial init. Follows the same pattern as the [init opt
 
 #### What's with the \_?
 Since the `py.` namespaces is reserved for the python modules imported by the user, instance methods on the `Pythonic` object are proxied to `py._.`.
+
+## Contributing
+We welcome issues and pull requests.
+
+If you spot a bug, please provide as much context as possible – including your OS, which versions of Node and Python you're running on, how you're managing your Python environment, and anything else that could be relevant. 
+
+## License
+MIT License (c) 2018 - Present IDEO CoLab
