@@ -4,7 +4,7 @@ Use Python from within Node ✨
 
 Pythonic is designed for prototyping apps with data-driven Python backends. **It is not recommended for scalable or production-ready apps.** For that, you might want to look at a micro-service architecture.
 
-This package can be used along with [Pythonic-Client](https://github.com/ideo-colab/pythonic-client) to quickly make Python functionality available on the fronted.
+This package can be used along with [pythonic-client](https://github.com/ideo-colab/pythonic-client) to quickly make Python functionality available on the fronted.
 
 ### Why?
 
