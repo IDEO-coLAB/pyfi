@@ -1,4 +1,4 @@
-# Pythonic [![CircleCI](https://circleci.com/gh/IDEO-coLAB/pythonic/tree/master.svg?style=svg)](https://circleci.com/gh/IDEO-coLAB/pythonic/tree/master) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/IDEO-coLAB/pythonic/blob/master/LICENSE) 
+# Pythonic [![CircleCI](https://circleci.com/gh/IDEO-coLAB/pythonic/tree/master.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/IDEO-coLAB/pythonic/tree/master) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/IDEO-coLAB/pythonic/blob/master/LICENSE) 
 
 Use Python from within Node ✨
 
