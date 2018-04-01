@@ -65,7 +65,7 @@ class Runner(protocol.Protocol):
         try:
             # the function is attached directly to the nested modules dictionary
             return module[function_name]
-        except TypeError:
+        except (TypeError, AttributeError):
             # the function is attached to a module or class instance
             return getattr(module, function_name)
 
@@ -73,7 +73,7 @@ class Runner(protocol.Protocol):
     def importModule(self, module_data):
         try:
             name = module_data['name']
-            from_list = module_data['from_list']
+            from_list = [str(m) for m in module_data['from_list']]
             import_results = __import__(name, globals(), locals(), from_list)
             result = self.attachImport(import_results, name, from_list)
 
