@@ -159,14 +159,12 @@ const py = Pythonic({
 ```
 `Pythonic` allows you to create and use an instance of that class:
 ```js
-py._.initClass(
-  {
+py._.initClass({
     class: 'MyClass',
     as: 'mc',
     args: [/*init args*/],
     kwargs: {/*init kwargs*/}
-  }
-);
+});
 // the initClass method returns a promise
 .then(()=>{
   // once the class is init'ed we can call it:
