@@ -1,6 +1,6 @@
 # Pythonic [![CircleCI](https://circleci.com/gh/IDEO-coLAB/pythonic/tree/master.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/IDEO-coLAB/pythonic/tree/master) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/IDEO-coLAB/pythonic/blob/master/LICENSE) 
 
-Use Python from within Node ✨
+Use Python from Node ✨
 
 Pythonic is designed for prototyping node apps with data-driven Python backends. **It is not recommended for production-ready apps that need to scale.** For that, you might want to look at a micro-service architecture.
 
