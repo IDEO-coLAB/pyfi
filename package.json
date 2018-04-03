@@ -1,13 +1,20 @@
 {
   "name": "pythonic",
   "version": "1.0.0",
-  "description": "",
+  "description": "Call Python functions from Node.",
   "main": "index.js",
   "scripts": {
-    "test": "eslint **/*.js && tape tests/**/*.js",
+    "test": "tape tests/**/*.js",
     "postinstall": "pip install -r requirements.txt"
   },
-  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/IDEO-coLAB/pythonic.git"
+  },
+  "author": {
+    "name": "IDEO CoLab",
+    "website": "https://ideocolab.com"
+  },
   "license": "MIT",
   "dependencies": {
     "randomstring": "^1.1.5"
