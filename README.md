@@ -1,8 +1,8 @@
-# Pythonic
+# Pythonic [![CircleCI](https://circleci.com/gh/IDEO-coLAB/pythonic/tree/master.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/IDEO-coLAB/pythonic/tree/master) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/IDEO-coLAB/pythonic/blob/master/LICENSE) 
 
-Use Python from within Node ✨
+Use Python from Node ✨
 
-Pythonic is designed for prototyping apps with data-driven Python backends. **It is not recommended for scalable or production-ready apps.** For that, you might want to look at a micro-service architecture.
+Pythonic is designed for prototyping node apps with data-driven Python backends. **It is not recommended for production-ready apps that need to scale.** For that, you might want to look at a micro-service architecture.
 
 This package can be used along with [pythonic-client](https://github.com/ideo-colab/pythonic-client) to quickly make Python functionality available on the fronted.
 
@@ -12,9 +12,9 @@ Python is the language of choice for data science and machine learning (as well 
 
 ## Installation
 
-**IMPORTANT!** Pythonic will install its' own Python dependancies (using pip) after `npm install pythonic`, so be sure that you're working within the python environment used by the Python you'll be importing.
+**IMPORTANT!** Pythonic will install it's own Python dependancies (using pip) after `npm install pythonic`, so be sure that you're working within the python environment used by the Python you'll be importing.
 
-If you already have the Python environment, be sure you working inside it and just:
+If you already have the Python environment, be sure it's activated and just:
 ```
 npm install pythonic
 ```
