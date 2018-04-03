@@ -12,7 +12,7 @@ Python is the language of choice for data science and machine learning (as well 
 
 ## Installation
 
-**IMPORTANT!** Pythonic will install its' own Python dependancies (using pip) after `npm install pythonic`, so be sure that you're working within the python environment used by the Python you'll be importing.
+**IMPORTANT!** Pythonic will install it's own Python dependancies (using pip) after `npm install pythonic`, so be sure that you're working within the python environment used by the Python you'll be importing.
 
 If you already have the Python environment, be sure you working inside it and just:
 ```
