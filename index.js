@@ -5,7 +5,7 @@ const debug = require('debug')('pythonic');
 const path = require('path');
 
 
-class Pythonic {
+class PyFi {
   constructor(settings) {
     this.startPython = this.startPython.bind(this);
     this.callPython = this.callPython.bind(this);
@@ -37,7 +37,7 @@ class Pythonic {
   startPython() {
     return new Promise((resolve, reject) => {
       debug('Starting Python');
-      this.pythonProcess = spawn('python', [`${__dirname}/pythonic.py`, this.port], { cwd: '.' });
+      this.pythonProcess = spawn('python', [`${__dirname}/pyfi.py`, this.port], { cwd: '.' });
 
       this.pythonProcess.stderr.on('data', (error) => {
         if (this.pythonErrorCallback) {
@@ -205,4 +205,4 @@ const proxyHandler = {
   },
 };
 
-module.exports = settings => new Proxy(new Pythonic(settings), proxyHandler);
+module.exports = settings => new Proxy(new PyFi(settings), proxyHandler);

@@ -1,7 +1,7 @@
 {
-  "name": "pythonic",
+  "name": "pyfi",
   "version": "1.0.0",
-  "description": "Call Python functions from Node.",
+  "description": "Call Python functions and classes from Node or Client ✨",
   "main": "index.js",
   "scripts": {
     "test": "tape tests/**/*.js",
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/IDEO-coLAB/pythonic.git"
+    "url": "git://github.com/IDEO-coLAB/pyfi.git"
   },
   "author": {
     "name": "IDEO CoLab",
