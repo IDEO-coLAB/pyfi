@@ -1,11 +1,11 @@
 const test = require('tape');
-const Pythonic = require('../');
+const PyFi = require('../');
 
 // TODO: we need proper error handling for rejected promises!!
 
 test('import MODULE', (t) => {
   t.plan(1);
-  const py = Pythonic({
+  const py = PyFi({
     path: './tests/test-python', // equivalent to setting PYTHONPATH
     imports: [{
       import: 'test_module',
@@ -24,7 +24,7 @@ test('import MODULE', (t) => {
 
 test('from MODULE import OBJECT', (t) => {
   t.plan(1);
-  const py = Pythonic({
+  const py = PyFi({
     path: './tests/test-python', // equivalent to setting PYTHONPATH
     imports: [{
       import: ['how_long_is_this_string', 'StringMeasurer'],
@@ -44,7 +44,7 @@ test('from MODULE import OBJECT', (t) => {
 
 test('from BUILTIN_MODULE import OBJECT', (t) => {
   t.plan(1);
-  const py = Pythonic({
+  const py = PyFi({
     path: './tests/test-python', // equivalent to setting PYTHONPATH
     imports: [{
       import: 'time',
@@ -65,7 +65,7 @@ test('from BUILTIN_MODULE import OBJECT', (t) => {
 
 test('from MODULE import OBJECT, init class', (t) => {
   t.plan(1);
-  const py = Pythonic({
+  const py = PyFi({
     path: './tests/test-python', // equivalent to setting PYTHONPATH
     imports: [{
       import: ['how_long_is_this_string', 'StringMeasurer'],
@@ -91,7 +91,7 @@ test('from MODULE import OBJECT, init class', (t) => {
 
 test('from PACKAGE.MODULE import OBJECT', (t) => {
   t.plan(1);
-  const py = Pythonic({
+  const py = PyFi({
     path: './tests/test-python', // equivalent to setting PYTHONPATH
     imports: [{
       import: 'give_me_five',
@@ -111,7 +111,7 @@ test('from PACKAGE.MODULE import OBJECT', (t) => {
 
 test('from PACKAGE import MODULE', (t) => {
   t.plan(1);
-  const py = Pythonic({
+  const py = PyFi({
     path: './tests/test-python', // equivalent to setting PYTHONPATH
     imports: [{
       import: 'test_package_module',
