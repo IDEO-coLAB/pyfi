@@ -132,7 +132,7 @@ class PyFi {
   }
 
   handleImportResults(results) {
-    this.moduleTree.concat(results);
+    this.moduleTree = this.moduleTree.concat(results);
     this.run = Object.assign({}, this.run, this.getCallables(results));
   }
 
