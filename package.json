@@ -1,7 +1,7 @@
 {
   "name": "pyfi",
-  "version": "1.0.0",
-  "description": "Call Python functions and classes from Node or Client ✨",
+  "version": "1.0.1",
+  "description": "Call Python functions and classes from Node or a client 📼",
   "main": "index.js",
   "scripts": {
     "test": "tape tests/**/*.js",
