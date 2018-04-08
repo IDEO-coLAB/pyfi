@@ -1,10 +1,11 @@
-# PyFi [![CircleCI](https://circleci.com/gh/IDEO-coLAB/pythonic/tree/master.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/IDEO-coLAB/pythonic/tree/master) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/IDEO-coLAB/pythonic/blob/master/LICENSE)
+# PyFi [![CircleCI](https://circleci.com/gh/IDEO-coLAB/pyfi/tree/master.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/IDEO-coLAB/pyfi/tree/master) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/IDEO-coLAB/pyfi/blob/master/LICENSE) [![npm](https://img.shields.io/npm/v/pyfi.svg)](https://www.npmjs.com/package/pyfi)
 
-Use Python from Node ✨
+
+Call Python functions from Node with an asynchronous non-blocking architecture ✨
 
 PyFi is designed for prototyping apps with data-driven Python backends. **It is not recommended for scalable or production-ready apps.** For that, you might want to look at a micro-service architecture.
 
-This package can be used along with [pythonic-client](https://github.com/ideo-colab/pyfi-client) to quickly make Python functionality available on the frontend.
+This package can be used along with [pyfi-client](https://github.com/ideo-colab/pyfi-client) to quickly make Python functionality available on the frontend.
 
 ### Why?
 
