@@ -175,6 +175,9 @@ py._.initClass({
 ```
 The instance will continue to be available as `py.mc` with all of it's callable methods attached.
 
+### Usage with Pyfi-Client
+[PyFi-Client](https://github.com/IDEO-coLAB/pyfi-client) allows for frontend clients to attach to a node instance of PyFi using [socket.io](https://socket.io/). The `_.attachClientSocketIO` method is used to make this functionality available using an existing socket.io instance. You can see a [full example](https://github.com/IDEO-coLAB/pyfi-client/tree/master/example) in the PyFi-Client repo.
+
 
 ### Methods
 
@@ -189,6 +192,10 @@ Instantiate a python class and attach it to the instance of PyFi. Returns a Prom
 **`_.importModules([modules])`**
 
 Import modules after the initial init. Follows the same pattern as the [init options](#options) (see [Importing and Calling Python Functions](#importing-and-calling-python-functions) for examples).
+
+**`_.attachClientSocketIO(socketIOInstance)`**
+
+Make this instance of PyFi available to [PyFi-Client](https://github.com/IDEO-coLAB/pyfi-client) by attaching an instance of [socket.io](https://socket.io/). See [Usage with PyFi-Client](#usage-with-pyfi-client).
 
 #### What's with the \_?
 Since the `py.` namespaces is reserved for the python modules imported by the user, instance methods on the `PyFi` object are proxied to `py._.`.

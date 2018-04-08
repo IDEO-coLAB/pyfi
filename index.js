@@ -177,7 +177,7 @@ class PyFi {
     });
   }
 
-  attachSocketIO(io) {
+  attachClientSocketIO(io) {
     io.on('connection', (socket) => {
       debug('SocketIO connected');
       socket.on('pythonic-run', (req) => {
