@@ -13,7 +13,7 @@ Python is the language of choice for data science and machine learning (as well 
 
 ## Installation
 
-**IMPORTANT!** PyFi will install its' own Python dependancies (using pip) after `npm install pyfi`, so be sure that you're working within the python environment used by the Python you'll be importing.
+**IMPORTANT!** PyFi will install its' own Python dependancies (using pip) after `npm install pyfi`, so be sure that you've activated the python environment used by the Python you'll be importing.
 
 If you already have the Python environment, be sure it's activated and just:
 ```
