@@ -48,12 +48,12 @@ class PyFi {
       });
 
       this.pythonProcess.stdout.on('data', (data) => {
+        debug('Received:', data.toString());
         data.toString().split('\u2404').forEach((res) => {
           if (res.length > 2) {
             this.handlePythonData(res);
           }
         });
-        debug('Received:', data.toString());
       });
 
       this.callPython({
