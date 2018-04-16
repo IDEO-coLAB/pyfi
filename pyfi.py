@@ -88,10 +88,16 @@ class Runner(protocol.Protocol):
         return (status, result)
 
     def attachImport(self, import_results, name, from_list=[]):
+        # from MODULE import *
+        if from_list == ['*']:
+            d = self.getCallables(import_results)
+            for obj in d:
+                modules[obj] = getattr(import_results, obj)
+            result = d
         # from MODULE import OBJECT1, OBJECT2
         # from PACKAGE.MODULE import OBJECT1, OBJECT2
         # from PACKAGE import MODULE
-        if len(from_list) > 0:
+        elif len(from_list) > 0:
             for obj in from_list:
                 obj_attr = getattr(import_results, obj)
                 if inspect.ismodule(obj_attr):
@@ -100,12 +106,6 @@ class Runner(protocol.Protocol):
                 else:
                     modules[obj] = obj_attr
             result = from_list
-        # from MODULE import *
-        elif from_list == ['*']:
-            d = self.getCallables(import_results)
-            for obj in d:
-                modules[obj] = getattr(import_results, obj)
-            result = d
         # import MODULE
         else:
             d = self.getCallables(import_results)

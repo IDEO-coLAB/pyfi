@@ -42,6 +42,26 @@ test('from MODULE import OBJECT', (t) => {
   });
 });
 
+test('from MODULE import *', (t) => {
+  t.plan(1);
+  const py = PyFi({
+    path: './tests/test-python', // equivalent to setting PYTHONPATH
+    imports: [{
+      import: '*',
+      from: 'test_module',
+    }],
+  });
+  py._.onReady(() => {
+    py.how_long_is_this_string(['12']).then((res) => {
+      t.equal(res, 2);
+      py._.end();
+    }).catch((error) => {
+      t.fail(error);
+      py._.end();
+    });
+  });
+});
+
 test('from BUILTIN_MODULE import OBJECT', (t) => {
   t.plan(1);
   const py = PyFi({
