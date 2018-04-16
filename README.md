@@ -36,7 +36,7 @@ Say we have this Python module:
 ```py
 def my_very_fancy_function(first, second, commentary='nice job!'):
   # ... something fancy you need python for ...
-  return str(first + second) + ' commentary'
+  return str(first + second) + ' ' + commentary
 ```
 
 In another Python module, after setting a `PYTHONPATH` to that module, we could call it:
