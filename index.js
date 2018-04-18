@@ -21,7 +21,7 @@ class PyFi {
     this.port = settings.port;
 
     this.startPython().then(() => {
-      this.setPythonPath(settings.path).then(() => {
+      this.setPythonPath(settings.path || '.').then(() => {
         this.importModules(settings.imports).then(() => {
           if (this.readyCallback) {
             this.readyCallback();
