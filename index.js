@@ -56,12 +56,14 @@ class PyFi {
         });
       });
 
-      this.callPython({
-        action: 'PING',
-      }).then(() => {
-        this.pythonUp = true;
-        resolve();
-      });
+      setTimeout(() => {
+        this.callPython({
+          action: 'PING',
+        }).then(() => {
+          this.pythonUp = true;
+          resolve();
+        });
+      }, 200);
     });
   }
 
