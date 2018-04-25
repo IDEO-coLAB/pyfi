@@ -10,10 +10,13 @@ import functools
 
 
 
-modules = {}
-writer_transport = None
-
 class PyFiProtocol(asyncio.Protocol):
+    def __init__(self, writer_transport, loop):
+        super().__init__()
+        self.writer_transport = writer_transport
+        self.modules = {}
+        self.loop = loop
+
     def data_received(self, data):
         requests = [ r for r in data.decode('utf8').split(u'\u2404') if len(r) > 2]
         for data in requests:
@@ -38,7 +41,11 @@ class PyFiProtocol(asyncio.Protocol):
                 status = 'ERROR'
                 body = "Received action of unexpected type. Expected 'PING, ''RUN', 'IMPORT', 'SET_PATH', or 'INIT_CLASS'; got '" + command + "'."
 
-            writer_transport.write((json.dumps({'pid': parsed_data['pid'], 'status': status, 'body': body}) + u'\u2404').encode('utf-8'))
+        self.send_response(parsed_data['pid'], status, body)
+
+
+    def send_response(self, pid, status, body):
+            self.writer_transport.write((json.dumps({'pid': pid, 'status': status, 'body': body}) + u'\u2404').encode('utf-8'))
 
     def run(self, mod_path, function_name, function_args, function_kwargs):
 
@@ -58,13 +65,13 @@ class PyFiProtocol(asyncio.Protocol):
     def get_module(self, mod_path, function_name):
         if len(mod_path) > 0:
             module_tree = mod_path.split('.')
-            module = modules[module_tree.pop(0)]
+            module = self.modules[module_tree.pop(0)]
             while len(module_tree) > 0:
                 module = module[module_tree.pop(0)]
 
         else:
             module_tree = []
-            module = modules
+            module = self.modules
         try:
             # the function is attached directly to the nested modules dictionary
             return module[function_name]
@@ -95,7 +102,7 @@ class PyFiProtocol(asyncio.Protocol):
         if from_list == ['*']:
             d = self.get_callables(import_results)
             for obj in d:
-                modules[obj] = getattr(import_results, obj)
+                self.modules[obj] = getattr(import_results, obj)
             result = d
         # from MODULE import OBJECT1, OBJECT2
         # from PACKAGE.MODULE import OBJECT1, OBJECT2
@@ -107,12 +114,12 @@ class PyFiProtocol(asyncio.Protocol):
                     mod_name = obj
                     return self.attach_import(obj_attr, mod_name)
                 else:
-                    modules[obj] = obj_attr
+                    self.modules[obj] = obj_attr
             result = from_list
         # import MODULE
         else:
             d = self.get_callables(import_results)
-            modules[name] = import_results
+            self.modules[name] = import_results
             result = [{name: d}]
         return result
 
@@ -148,8 +155,8 @@ class PyFiProtocol(asyncio.Protocol):
             else:
                 path = ''
                 class_name = classpath
-            modules[as_name] = self.get_module(path, class_name)(*args, **kwargs)
-            result = [{as_name: self.get_callables(modules[as_name])}]
+            self.modules[as_name] = self.get_module(path, class_name)(*args, **kwargs)
+            result = [{as_name: self.get_callables(self.modules[as_name])}]
             status = 'OK'
         except KeyboardInterrupt:
             raise
@@ -164,12 +171,17 @@ class PyFiProtocol(asyncio.Protocol):
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
     try:
-        reader = loop.connect_read_pipe(PyFiProtocol, sys.stdin)
-        writer = loop.connect_write_pipe(PyFiProtocol, sys.stdout)
+
+        writer = loop.connect_write_pipe(asyncio.BaseProtocol, sys.stdout)
         writer_transport, writer_protocol = loop.run_until_complete(writer)
+
+        reader = loop.connect_read_pipe(functools.partial(PyFiProtocol, writer_transport, loop), sys.stdin)
+
         loop.add_signal_handler(signal.SIGINT, functools.partial(loop.stop))
         loop.add_signal_handler(signal.SIGTERM, functools.partial(loop.stop))
+
         loop.run_until_complete(reader)
         loop.run_forever()
+
     finally:
         loop.close()
