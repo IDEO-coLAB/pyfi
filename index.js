@@ -7,18 +7,10 @@ const path = require('path');
 
 class PyFi {
   constructor(settings) {
-    this.startPython = this.startPython.bind(this);
-    this.callPython = this.callPython.bind(this);
-    this.handlePythonData = this.handlePythonData.bind(this);
-    this.importModules = this.importModules.bind(this);
-    this.getCallables = this.getCallables.bind(this);
-    this.onReady = this.onReady.bind(this);
-
     this.pythonUp = false;
     this.pythonProcesses = {};
     this.run = {};
     this.moduleTree = [];
-    this.port = settings.port;
 
     this.startPython().then(() => {
       this.setPythonPath(settings.path || '.').then(() => {
@@ -37,7 +29,7 @@ class PyFi {
   startPython() {
     return new Promise((resolve, reject) => {
       debug('Starting Python');
-      this.pythonProcess = spawn('python', [`${__dirname}/pyfi.py`, this.port], { cwd: '.' });
+      this.pythonProcess = spawn('python', [`${__dirname}/pyfi.py`], { cwd: '.' });
 
       this.pythonProcess.stderr.on('data', (error) => {
         if (this.pythonErrorCallback) {
@@ -77,9 +69,23 @@ class PyFi {
   handlePythonData(data) {
     const res = JSON.parse(data);
     const openProcess = this.pythonProcesses[res.pid];
+
     if (openProcess) {
-      res.status === 'OK' ? openProcess.resolve(res.body) : openProcess.reject(res.body);
+      switch (res.status) {
+        case 'OK':
+          openProcess.resolve(res.body);
+          break;
+        default:
+          openProcess.reject(res.body);
+          break;
+      }
       delete this.pythonProcesses[res.pid];
+    } else if (res.status === 'PRINT') {
+      if (this.pythonPrintCallback) {
+        this.pythonPrintCallback(res.body);
+      } else {
+        console.log(`PYTHON: ${res.body}`);
+      }
     }
   }
 
@@ -164,6 +170,10 @@ class PyFi {
 
   onPythonError(callback) {
     this.pythonErrorCallback = callback;
+  }
+
+  onPrint(callback) {
+    this.pythonPrintCallback = callback;
   }
 
   callPython(request) {

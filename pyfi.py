@@ -6,7 +6,7 @@ import inspect
 import asyncio
 import signal
 import functools
-
+import builtins
 
 
 
@@ -16,6 +16,7 @@ class PyFiProtocol(asyncio.Protocol):
         self.writer_transport = writer_transport
         self.modules = {}
         self.loop = loop
+        builtins.print = self.print_to_host
 
     def data_received(self, data):
         requests = [ r for r in data.decode('utf8').split(u'\u2404') if len(r) > 2]
@@ -41,11 +42,14 @@ class PyFiProtocol(asyncio.Protocol):
                 status = 'ERROR'
                 body = "Received action of unexpected type. Expected 'PING, ''RUN', 'IMPORT', 'SET_PATH', or 'INIT_CLASS'; got '" + command + "'."
 
-        self.send_response(parsed_data['pid'], status, body)
+            self.send_to_host(pid=parsed_data['pid'], status=status, body=body)
 
 
-    def send_response(self, pid, status, body):
-            self.writer_transport.write((json.dumps({'pid': pid, 'status': status, 'body': body}) + u'\u2404').encode('utf-8'))
+    def send_to_host(self, **kwargs):
+        self.writer_transport.write((json.dumps(kwargs) + u'\u2404').encode('utf-8'))
+
+    def print_to_host(self, string, **kwargs):
+        self.send_to_host(status='PRINT', body=string)
 
     def run(self, mod_path, function_name, function_args, function_kwargs):
 
