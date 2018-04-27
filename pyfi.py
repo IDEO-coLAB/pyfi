@@ -23,26 +23,33 @@ class PyFiProtocol(asyncio.Protocol):
         for data in requests:
             parsed_data = json.loads(str(data))
             command = parsed_data['action']
+
             if(command == 'RUN'):
-                status, body = self.run(parsed_data['module'], parsed_data['function'], parsed_data['args'], parsed_data['kwargs'])
-
-            elif(command == 'PING'):
-                status, body = ('OK', 'PONG')
-
-            elif(command == 'IMPORT'):
-                status, body = self.import_module(parsed_data['module'])
-
-            elif(command == 'SET_PATH'):
-                status, body = self.set_path(parsed_data['path'])
-
-            elif(command == 'INIT_CLASS'):
-                status, body = self.init_class(parsed_data['class'], parsed_data['as'], parsed_data['args'], parsed_data['kwargs'])
+                def handle_result(future):
+                    status, body = future.result()
+                    self.send_to_host(pid=parsed_data['pid'], status=status, body=body)
+                future = asyncio.Future()
+                future.add_done_callback(handle_result)
+                asyncio.ensure_future(self.run(future, parsed_data['module'], parsed_data['function'], parsed_data['args'], parsed_data['kwargs']))
 
             else:
-                status = 'ERROR'
-                body = "Received action of unexpected type. Expected 'PING, ''RUN', 'IMPORT', 'SET_PATH', or 'INIT_CLASS'; got '" + command + "'."
+                if(command == 'PING'):
+                    status, body = ('OK', 'PONG')
 
-            self.send_to_host(pid=parsed_data['pid'], status=status, body=body)
+                elif(command == 'IMPORT'):
+                    status, body = self.import_module(parsed_data['module'])
+
+                elif(command == 'SET_PATH'):
+                    status, body = self.set_path(parsed_data['path'])
+
+                elif(command == 'INIT_CLASS'):
+                    status, body = self.init_class(parsed_data['class'], parsed_data['as'], parsed_data['args'], parsed_data['kwargs'])
+
+                else:
+                    status = 'ERROR'
+                    body = "Received action of unexpected type. Expected 'PING, ''RUN', 'IMPORT', 'SET_PATH', or 'INIT_CLASS'; got '" + command + "'."
+
+                self.send_to_host(pid=parsed_data['pid'], status=status, body=body)
 
 
     def send_to_host(self, **kwargs):
@@ -51,12 +58,12 @@ class PyFiProtocol(asyncio.Protocol):
     def print_to_host(self, string, **kwargs):
         self.send_to_host(status='PRINT', body=string)
 
-    def run(self, mod_path, function_name, function_args, function_kwargs):
+    async def run(self, future, mod_path, function_name, function_args, function_kwargs):
 
         try:
-            call = self.get_module(mod_path, function_name)
+            call = asyncio.coroutine(self.get_module(mod_path, function_name))
 
-            result = call(*function_args, **function_kwargs)
+            result = await call(*function_args, **function_kwargs)
             status = 'OK'
         except KeyboardInterrupt:
             raise
@@ -64,7 +71,7 @@ class PyFiProtocol(asyncio.Protocol):
             result = repr(e)
             status = 'ERROR'
 
-        return (status, result)
+        future.set_result((status, result))
 
     def get_module(self, mod_path, function_name):
         if len(mod_path) > 0:
