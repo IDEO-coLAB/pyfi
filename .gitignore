@@ -1,6 +1,5 @@
 node_modules
 *.pyc
-venv
-venv3
+venv*
 test-private.js
 __pycache__

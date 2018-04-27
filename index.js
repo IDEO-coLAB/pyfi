@@ -7,6 +7,8 @@ const path = require('path');
 
 class PyFi {
   constructor(settings) {
+    this.onPythonError = this.onPythonError.bind(this);
+    this.startPython = this.startPython.bind(this);
     this.pythonUp = false;
     this.pythonProcesses = {};
     this.run = {};
@@ -32,10 +34,11 @@ class PyFi {
       this.pythonProcess = spawn('python', [`${__dirname}/pyfi.py`], { cwd: '.' });
 
       this.pythonProcess.stderr.on('data', (error) => {
+        const errorString = error.toString();
         if (this.pythonErrorCallback) {
-          this.pythonErrorCallback(error);
-        } else {
-          throw new Error(`PYTHON: ${error.toString()}`);
+          this.pythonErrorCallback(errorString);
+        } else if (this.pythonUp) {
+          throw new Error(`PYTHON: ${errorString}`);
         }
       });
 
@@ -58,6 +61,7 @@ class PyFi {
   }
 
   end() {
+    this.pythonUp = false;
     this.killPython();
   }
 

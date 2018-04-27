@@ -8,6 +8,7 @@ import signal
 import functools
 import builtins
 import concurrent.futures
+import atexit
 
 
 
@@ -15,9 +16,13 @@ class PyFiProtocol(asyncio.Protocol):
     def __init__(self, writer_transport, loop):
         super().__init__()
         self.writer_transport = writer_transport
-        self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=10)
-        self.modules = {}
         self.loop = loop
+
+        self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=10)
+        atexit.register(functools.partial(self.executor.shutdown, wait=False))
+
+        self.modules = {}
+
         builtins.print = self.print_to_host
 
     def data_received(self, data):
