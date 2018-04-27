@@ -4,8 +4,7 @@
   "description": "Call Python functions and classes from Node or a client 📼",
   "main": "index.js",
   "scripts": {
-    "test": "tape tests/**/*.js",
-    "postinstall": "pip install -r requirements.txt"
+    "test": "tape tests/**/*.js"
   },
   "repository": {
     "type": "git",

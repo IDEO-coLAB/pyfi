@@ -1,7 +1,7 @@
 const net = require('net');
 const randomstring = require('randomstring');
 const spawn = require('child_process').spawn;
-const debug = require('debug')('pythonic');
+const debug = require('debug')('pyfi');
 const path = require('path');
 
 

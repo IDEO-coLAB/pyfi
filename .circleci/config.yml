@@ -10,18 +10,8 @@ jobs:
       - run: source venv/bin/activate && npm install
       - run: source venv/bin/activate && npm test
 
-  test-2.7:
-    docker:
-      - image: circleci/python:2.7.14-stretch-node-browsers
-    working_directory: ~/repo
-    steps:
-      - checkout
-      - run: virtualenv venv
-      - run: source venv/bin/activate && npm install
-      - run: source venv/bin/activate && npm test
 workflows:
   version: 2
   test:
     jobs:
       - test-3.4
-      - test-2.7

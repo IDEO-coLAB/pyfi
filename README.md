@@ -1,9 +1,11 @@
+**This is in alpha! Try it out & tell us how it goes! Okay!**
+
 # PyFi [![CircleCI](https://circleci.com/gh/IDEO-coLAB/pyfi/tree/master.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/IDEO-coLAB/pyfi/tree/master) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/IDEO-coLAB/pyfi/blob/master/LICENSE) [![npm](https://img.shields.io/npm/v/pyfi.svg)](https://www.npmjs.com/package/pyfi)
 
 
-Call Python functions from Node with an asynchronous non-blocking architecture ✨
+Call Python functions from Node with an asynchronous architecture ✨
 
-PyFi is designed for prototyping apps with data-driven Python backends. **It is not recommended for scalable or production-ready apps.** For that, you might want to look at a micro-service architecture.
+PyFi is designed for prototyping Node apps with data-driven Python backends. It runs Python as a subprocess of Node, which will get you up and running quickly for prototyping, but is not recommended for a production environment.
 
 This package can be used along with [pyfi-client](https://github.com/ideo-colab/pyfi-client) to quickly make Python functionality available on the frontend.
 
@@ -11,19 +13,15 @@ This package can be used along with [pyfi-client](https://github.com/ideo-colab/
 
 Python is the language of choice for data science and machine learning (as well as other applications), and a node stack is an excellent choice for prototyping highly-interactive apps. PyFi makes it straightforward to take advantage of both of these strengths simultaneously.
 
+## Compatibility
+
+Runs in Node 5+, with a Python kernel that requires Python 3.4+.
+
+
 ## Installation
 
-**IMPORTANT!** PyFi will install its' own Python dependancies (using pip) after `npm install pyfi`, so be sure that you've activated the python environment used by the Python you'll be importing.
-
-If you already have the Python environment, be sure it's activated and just:
+PyFi no longer has any Python dependancies, so to install you can just:
 ```
-npm install pyfi
-```
-
-If you're creating a new Python environment when you install this, we'd recommend using [virtualenv](https://virtualenv.pypa.io/en/stable/), which might look something like:
-```
-virtualenv -p python3 venv
-source venv/bin/activate
 npm install pyfi
 ```
 
@@ -63,6 +61,7 @@ const py = PyFi({
 
 // callback for when python has started
 py._.onReady(() => {
+  // we wrap args in an array and kwargs in an object
   py.my_very_fancy_function([1, 2], {commentary: 'way to go!'})
   .then((result) => {
     console.log(result)
@@ -165,7 +164,7 @@ py._.initClass({
     as: 'mc',
     args: [/*init args*/],
     kwargs: {/*init kwargs*/}
-});
+})
 // the initClass method returns a promise
 .then(()=>{
   // once the class is init'ed we can call it:
@@ -184,7 +183,17 @@ The instance will continue to be available as `py.mc` with all of it's callable 
 
 **`_.onReady(callback)`**
 
-Attach a callback function to call when the instance of PyFi is ready.
+Attach a callback for when the instance of PyFi is ready.
+
+**`_.onPrint(callback)`**
+
+Attach a callback for when python prints. By default it will be `console.log`ed and denote as `PYTHON:`.
+
+```js
+py._.onPrint((message) => {
+  console.log(`Here's what python said: ${message}`)
+})
+```
 
 **`_.initClass({options})`**
 
