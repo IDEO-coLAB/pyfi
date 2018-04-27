@@ -7,6 +7,7 @@ import asyncio
 import signal
 import functools
 import builtins
+import concurrent.futures
 
 
 
@@ -14,6 +15,7 @@ class PyFiProtocol(asyncio.Protocol):
     def __init__(self, writer_transport, loop):
         super().__init__()
         self.writer_transport = writer_transport
+        self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=10)
         self.modules = {}
         self.loop = loop
         builtins.print = self.print_to_host
@@ -25,12 +27,11 @@ class PyFiProtocol(asyncio.Protocol):
             command = parsed_data['action']
 
             if(command == 'RUN'):
-                def handle_result(future):
+                def handle_result(pid, future):
                     status, body = future.result()
-                    self.send_to_host(pid=parsed_data['pid'], status=status, body=body)
-                future = asyncio.Future()
-                future.add_done_callback(handle_result)
-                asyncio.ensure_future(self.run(future, parsed_data['module'], parsed_data['function'], parsed_data['args'], parsed_data['kwargs']))
+                    self.send_to_host(pid=pid, status=status, body=body)
+                future = self.executor.submit(self.run, parsed_data['module'], parsed_data['function'], parsed_data['args'], parsed_data['kwargs'])
+                future.add_done_callback(functools.partial(handle_result, parsed_data['pid']))
 
             else:
                 if(command == 'PING'):
@@ -58,12 +59,12 @@ class PyFiProtocol(asyncio.Protocol):
     def print_to_host(self, string, **kwargs):
         self.send_to_host(status='PRINT', body=string)
 
-    async def run(self, future, mod_path, function_name, function_args, function_kwargs):
+    def run(self, mod_path, function_name, function_args, function_kwargs):
 
         try:
-            call = asyncio.coroutine(self.get_module(mod_path, function_name))
+            call = self.get_module(mod_path, function_name)
 
-            result = await call(*function_args, **function_kwargs)
+            result = call(*function_args, **function_kwargs)
             status = 'OK'
         except KeyboardInterrupt:
             raise
@@ -71,7 +72,7 @@ class PyFiProtocol(asyncio.Protocol):
             result = repr(e)
             status = 'ERROR'
 
-        future.set_result((status, result))
+        return (status, result)
 
     def get_module(self, mod_path, function_name):
         if len(mod_path) > 0:
