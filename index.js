@@ -18,9 +18,9 @@ class PyFi {
           if (this.readyCallback) {
             this.readyCallback();
           }
-        }).catch((error) => { throw error; });
-      }).catch((error) => { throw error; });
-    }).catch((error) => { throw error; });
+        }).catch((error) => { console.log('Importing modules failed.', error); });
+      }).catch((error) => { console.log('Error setting python path.', error); });
+    }).catch((error) => { console.log('Failed to start Python.', error); });
 
     process.on('exit', this.end);
   }
