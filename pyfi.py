@@ -9,6 +9,7 @@ import functools
 import builtins
 import concurrent.futures
 import atexit
+from contextlib import contextmanager
 
 
 
@@ -35,7 +36,7 @@ class PyFiProtocol(asyncio.Protocol):
                 def handle_result(pid, future):
                     status, body = future.result()
                     self.send_to_host(pid=pid, status=status, body=body)
-                future = self.executor.submit(self.run, parsed_data['module'], parsed_data['function'], parsed_data['args'], parsed_data['kwargs'])
+                future = self.executor.submit(self.run, parsed_data['module'], parsed_data['function'], parsed_data['args'], parsed_data['kwargs'], parsed_data['pid'])
                 future.add_done_callback(functools.partial(handle_result, parsed_data['pid']))
 
             else:
@@ -64,12 +65,20 @@ class PyFiProtocol(asyncio.Protocol):
     def print_to_host(self, string, **kwargs):
         self.send_to_host(status='PRINT', body=string)
 
-    def run(self, mod_path, function_name, function_args, function_kwargs):
+    @contextmanager
+    def set_run_context(self, pid=None):
+        def pyfi_send(message):
+            self.send_to_host(status='MESSAGE', body=message, pid=pid)
+        yield pyfi_send
+        pass
+
+    def run(self, mod_path, function_name, function_args, function_kwargs, pid):
 
         try:
-            call = self.get_module(mod_path, function_name)
-
-            result = call(*function_args, **function_kwargs)
+            with self.set_run_context(pid=pid) as pyfi_send:
+                call = functools.partial(self.get_module(mod_path, function_name))
+                pyfi_send('hey')
+                result = call(*function_args, **function_kwargs)
             status = 'OK'
         except KeyboardInterrupt:
             raise
