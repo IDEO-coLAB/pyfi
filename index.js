@@ -2,6 +2,19 @@ const randomstring = require('randomstring');
 const spawn = require('child_process').spawn;
 const debug = require('debug')('pyfi');
 
+class MessagePromise extends Promise {
+  then(...args) {
+    const result = super.then(...args);
+    result.onMessage = this.onMessage;
+    return result;
+  }
+  catch(...args) {
+    const result = super.catch(...args);
+    result.onMessage = this.onMessage;
+    return result;
+  }
+}
+
 class PyFi {
   constructor(settings) {
     this.onPythonError = this.onPythonError.bind(this);
@@ -74,11 +87,9 @@ class PyFi {
     if (openProcess) {
       switch (res.status) {
         case 'OK':
-          debug('received ok', res.body);
           openProcess.resolve(res.body);
           break;
         case 'MESSAGE':
-          debug('received message', res.body);
           if (openProcess.messageHandler) {
             openProcess.messageHandler(res.body);
           }
@@ -191,7 +202,7 @@ class PyFi {
     const fullRequest = `${JSON.stringify(Object.assign(request, { pid }))}\u2404`;
     debug(`Sending: ${fullRequest}`);
     this.pythonProcess.stdin.write(fullRequest);
-    const result = new Promise((resolve, reject) => {
+    const result = new MessagePromise((resolve, reject) => {
       this.pythonProcesses[pid] = {
         resolve,
         reject,
