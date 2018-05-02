@@ -2,17 +2,6 @@ const randomstring = require('randomstring');
 const spawn = require('child_process').spawn;
 const debug = require('debug')('pyfi');
 
-class PyFiPromise extends Promise {
-  // message, resolve, reject
-  constructor(fn) {
-    fn.bind(this, this.sendMessageCallback);
-    super(fn);
-  }
-  onMessage(callback) {
-    this.sendMessageHandler = callback;
-  }
-}
-
 class PyFi {
   constructor(settings) {
     this.onPythonError = this.onPythonError.bind(this);
@@ -85,17 +74,22 @@ class PyFi {
     if (openProcess) {
       switch (res.status) {
         case 'OK':
+          debug('received ok', res.body);
           openProcess.resolve(res.body);
           break;
         case 'MESSAGE':
+          debug('received message', res.body);
           if (openProcess.messageHandler) {
             openProcess.messageHandler(res.body);
           }
-        default:
+          break;
+        case 'ERROR':
           openProcess.reject(res.body);
+          delete this.pythonProcesses[res.pid];
+          break;
+        default:
           break;
       }
-      delete this.pythonProcesses[res.pid];
     } else if (res.status === 'PRINT') {
       if (this.pythonPrintCallback) {
         this.pythonPrintCallback(res.body);
@@ -197,14 +191,17 @@ class PyFi {
     const fullRequest = `${JSON.stringify(Object.assign(request, { pid }))}\u2404`;
     debug(`Sending: ${fullRequest}`);
     this.pythonProcess.stdin.write(fullRequest);
-    const onMessage = (handler);
     const result = new Promise((resolve, reject) => {
       this.pythonProcesses[pid] = {
-        message,
         resolve,
         reject,
       };
     });
+    result.onMessage = (callback) => {
+      this.pythonProcesses[pid].messageHandler = callback;
+      return result;
+    };
+    return result;
   }
 
   attachClientSocketIO(io) {

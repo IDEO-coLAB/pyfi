@@ -67,10 +67,10 @@ class PyFiProtocol(asyncio.Protocol):
 
     @contextmanager
     def set_run_context(self, pid=None):
-        def pyfi_send(message):
+        def pyfi_message(message):
             self.send_to_host(status='MESSAGE', body=message, pid=pid)
-        builtins.pyfi_send = pyfi_send
-        yield pyfi_send
+        builtins.pyfi_message = pyfi_message
+        yield pyfi_message
         builtins.pyfi_send = None
 
     def run(self, mod_path, function_name, function_args, function_kwargs, pid):
