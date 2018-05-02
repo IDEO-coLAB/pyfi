@@ -69,15 +69,14 @@ class PyFiProtocol(asyncio.Protocol):
     def set_run_context(self, pid=None):
         def pyfi_send(message):
             self.send_to_host(status='MESSAGE', body=message, pid=pid)
+        builtins.pyfi_send = pyfi_send
         yield pyfi_send
-        pass
+        builtins.pyfi_send = None
 
     def run(self, mod_path, function_name, function_args, function_kwargs, pid):
-
         try:
             with self.set_run_context(pid=pid) as pyfi_send:
-                call = functools.partial(self.get_module(mod_path, function_name))
-                pyfi_send('hey')
+                call = self.get_module(mod_path, function_name)
                 result = call(*function_args, **function_kwargs)
             status = 'OK'
         except KeyboardInterrupt:
