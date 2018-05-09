@@ -1,4 +1,5 @@
 import sys
+import traceback
 import os
 import json
 import importlib
@@ -65,6 +66,7 @@ class PyFiProtocol(asyncio.Protocol):
     def print_to_host(self, string, **kwargs):
         self.send_to_host(status='PRINT', body=string)
 
+
     @contextmanager
     def set_run_context(self, pid=None):
         def pyfi_message(message):
@@ -82,7 +84,7 @@ class PyFiProtocol(asyncio.Protocol):
         except KeyboardInterrupt:
             raise
         except Exception as e:
-            result = repr(e)
+            result = ''.join(traceback.format_exception(*sys.exc_info()))
             status = 'ERROR'
 
         return (status, result)
@@ -117,7 +119,7 @@ class PyFiProtocol(asyncio.Protocol):
         except KeyboardInterrupt:
             raise
         except Exception as e:
-            result = repr(e)
+            result = ''.join(traceback.format_exception(*sys.exc_info()))
             status = 'ERROR'
 
         return (status, result)
@@ -186,7 +188,7 @@ class PyFiProtocol(asyncio.Protocol):
         except KeyboardInterrupt:
             raise
         except Exception as e:
-            result = repr(e)
+            result = ''.join(traceback.format_exception(*sys.exc_info()))
             status = 'ERROR'
 
         return (status, result)
