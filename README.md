@@ -84,17 +84,13 @@ The path or paths to append to the `PYTHONPATH`
 **`imports`** Array as `{import, [from]}`
 
 Describes which Python modules to import. Supports these patterns from Python:
-```py
-from MODULE import OBJECT1, OBJECT2
-# {from: 'MODULE' import: ['OBJECT1', 'OBJECT2']}
-from PACKAGE import MODULE
-# {from: 'PACKAGE', import: 'MODULE'}
-import MODULE
-# {import: 'MODULE'}
-from MODULE import *
-# {from: 'MODULE', import: '*'}
-```
 
+| Python                                | Pyfi                                              |
+| ------------------------------------- | ------------------------------------------------- |
+| `from MODULE import OBJECT1, OBJECT2` | `{from: 'MODULE' import: ['OBJECT1', 'OBJECT2']}` |
+| `from PACKAGE import MODULE`          | `{from: 'PACKAGE', import: 'MODULE'}`             |
+| `import MODULE`                       | `{import: 'MODULE'}`                              |
+| `from MODULE import *`                | `{from: 'MODULE', import: '*'}`                   |
 
 ### Importing and Calling Python Functions
 
