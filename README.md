@@ -7,15 +7,15 @@ Call Python functions from Node with an asynchronous architecture ✨
 
 PyFi is designed for prototyping Node apps with data-driven Python backends. It runs Python as a subprocess of Node, which will get you up and running quickly for prototyping, but is not recommended for a production environment.
 
-This package can be used along with [pyfi-client](https://github.com/ideo-colab/pyfi-client) to quickly make Python functionality available on the frontend.
+This package can be used along with [pyfi-client](https://github.com/ideo-colab/pyfi-client) to quickly make Python functionality available to a javascript client.
 
 ### Why?
 
-Python is the language of choice for data science and machine learning (as well as other applications), and a node stack is an excellent choice for prototyping highly-interactive apps. PyFi makes it straightforward to take advantage of both of these strengths simultaneously.
+Python is the language of choice for data science and machine learning (as well as other applications), and a node stack is great for prototyping highly-interactive apps. PyFi makes it straightforward to take advantage of both of these strengths simultaneously.
 
 ## Compatibility
 
-Runs in Node 5+, with a Python kernel that requires Python 3.4+.
+Requires Node 6+ and Python 3.4+
 
 
 ## Installation
@@ -59,7 +59,7 @@ const py = PyFi({
   }],
 });
 
-// callback for when python has started
+// callback for when pythonic is ready
 py._.onReady(() => {
   // we wrap args in an array and kwargs in an object
   py.my_very_fancy_function([1, 2], {commentary: 'way to go!'})
@@ -73,7 +73,7 @@ py._.onReady(() => {
 ## Reference
 
 ### PyFi({options})
-Returns a `PyFi` instance, starts a python kernel and attaches callables in node as described in options.
+Returns a `PyFi` instance, starts a Python kernel and attaches callables in node as described in options.
 
 ### Options
 
