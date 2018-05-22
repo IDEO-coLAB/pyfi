@@ -66,20 +66,15 @@ class PyFiProtocol(asyncio.Protocol):
     def print_to_host(self, string, **kwargs):
         self.send_to_host(status='PRINT', body=string)
 
-
-    @contextmanager
-    def set_run_context(self, pid=None):
+    def run(self, mod_path, function_name, function_args, function_kwargs, pid):
         def pyfi_message(message):
             self.send_to_host(status='MESSAGE', body=message, pid=pid)
-        builtins.pyfi_message = pyfi_message
-        yield pyfi_message
-        builtins.pyfi_message = None
 
-    def run(self, mod_path, function_name, function_args, function_kwargs, pid):
         try:
-            with self.set_run_context(pid=pid):
-                call = self.get_module(mod_path, function_name)
-                result = call(*function_args, **function_kwargs)
+            builtins.pyfi_message = pyfi_message
+            call = self.get_module(mod_path, function_name)
+            result = call(*function_args, **function_kwargs)
+            builtins.pyfi_message = None
             status = 'OK'
         except KeyboardInterrupt:
             raise
