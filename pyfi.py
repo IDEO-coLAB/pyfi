@@ -73,11 +73,11 @@ class PyFiProtocol(asyncio.Protocol):
             self.send_to_host(status='MESSAGE', body=message, pid=pid)
         builtins.pyfi_message = pyfi_message
         yield pyfi_message
-        builtins.pyfi_send = None
+        builtins.pyfi_message = None
 
     def run(self, mod_path, function_name, function_args, function_kwargs, pid):
         try:
-            with self.set_run_context(pid=pid) as pyfi_send:
+            with self.set_run_context(pid=pid):
                 call = self.get_module(mod_path, function_name)
                 result = call(*function_args, **function_kwargs)
             status = 'OK'
