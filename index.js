@@ -2,16 +2,26 @@ const randomstring = require('randomstring');
 const spawn = require('child_process').spawn;
 const debug = require('debug')('pyfi');
 
-class MessagePromise extends Promise {
+class MessagePromise {
+  constructor(cb) {
+    const promiseCb = cb.bind(this, (m) => {
+      if (this.messageHandler) {
+        this.messageHandler(m);
+      }
+    });
+    this.innerPromise = new Promise(promiseCb);
+  }
   then(...args) {
-    const result = super.then(...args);
-    result.onMessage = this.onMessage;
-    return result;
+    this.innerPromise.then(...args);
+    return this;
   }
   catch(...args) {
-    const result = super.catch(...args);
-    result.onMessage = this.onMessage;
-    return result;
+    this.innerPromise.catch(...args);
+    return this;
+  }
+  onMessage(handler) {
+    this.messageHandler = handler;
+    return this;
   }
 }
 
@@ -90,9 +100,7 @@ class PyFi {
           openProcess.resolve(res.body);
           break;
         case 'MESSAGE':
-          if (openProcess.messageHandler) {
-            openProcess.messageHandler(res.body);
-          }
+          openProcess.message(res.body);
           break;
         case 'ERROR':
           openProcess.reject(res.body);
@@ -202,31 +210,38 @@ class PyFi {
     const fullRequest = `${JSON.stringify(Object.assign(request, { pid }))}\u2404`;
     debug(`Sending: ${fullRequest}`);
     this.pythonProcess.stdin.write(fullRequest);
-    const result = new MessagePromise((resolve, reject) => {
+    const result = new MessagePromise((message, resolve, reject) => {
       this.pythonProcesses[pid] = {
+        message,
         resolve,
         reject,
       };
     });
-    result.onMessage = (callback) => {
-      this.pythonProcesses[pid].messageHandler = callback;
-      return result;
-    };
     return result;
   }
 
   attachClientSocketIO(io) {
     io.on('connection', (socket) => {
-      debug('SocketIO connected');
-      socket.on('pythonic-run', (req) => {
+      debug('SocketIO Client connected');
+      socket.on('pyfi-run', (req) => {
         debug('Recieved SocketIO request', req);
-        debug('REQUEST', req.request);
-        this.callPython(req.request).then((res) => {
-          socket.emit('pythonic-run-data', { rid: req.rid, data: res });
-        });
+        debug('Received from client:', req.request);
+        this.callPython(req.request)
+          .then((data) => {
+            debug('Sending to client:', data);
+            socket.emit('pyfi-run-data', { rid: req.rid, data });
+          })
+          .catch((error) => {
+            debug('Sending error to client:', error);
+            socket.emit('pyfi-run-error', { rid: req.rid, error });
+          })
+          .onMessage((message) => {
+            debug('Sending message to client:', message);
+            socket.emit('pyf-run-message', { rid: req.rid, message });
+          });
       });
-      socket.on('pythonic-get-modules', () => {
-        socket.emit('pythonic-modules', this.moduleTree);
+      socket.on('pyfi-get-modules', () => {
+        socket.emit('pyfi-modules', this.moduleTree);
       });
     });
   }
