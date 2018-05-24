@@ -143,6 +143,33 @@ py.my_function([args], {kwargs})
 ```
 You may omit either `[args]` or `{kwargs}` if the function you're calling doesn't require them, but to keep the notation explicit you must always wrap positional arguments in an array.
 
+### Sending messages through PyFi while a function is running
+PyFi includes handling for sending back from Python while a function is running. That allows for, for example, streaming status back to a client while a long-running function is in progress. To accomplish that, a function `pyfi_message` is injected into the run context, which is received by an `onMessage` handler attached to the corresponding promise.
+
+That looks like this:
+Python:
+```py
+def my_function():
+  # ... do something ...
+  pyfi_message('my message')
+  # ... do something else ...
+  return 'done!'
+```
+Node:
+```js
+// assuming you've imported this function already
+py.my_function()
+  .onMessage(data => {
+    console.log(data)
+    // 'my message'
+  })
+  .then(res => {
+    console.log(res);
+    // 'done'
+  })
+```
+
+
 
 ### Instantiating Python classes
 Say you've imported a Python class:
