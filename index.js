@@ -237,7 +237,7 @@ class PyFi {
           })
           .onMessage((message) => {
             debug('Sending message to client:', message);
-            socket.emit('pyf-run-message', { rid: req.rid, message });
+            socket.emit('pyfi-run-message', { rid: req.rid, message });
           });
       });
       socket.on('pyfi-get-modules', () => {
