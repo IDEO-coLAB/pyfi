@@ -53,22 +53,20 @@ class PyFi {
       debug('Starting Python');
       this.pythonProcess = spawn('python', [`${__dirname}/pyfi.py`], { cwd: '.' });
 
-      this.pythonProcess.stderr.on('data', (error) => {
-        const errorString = error.toString();
-        if (this.pythonErrorCallback) {
-          this.pythonErrorCallback(errorString);
-        } else if (this.pythonUp) {
-          throw new Error(`PYTHON: ${errorString}`);
-        }
-      });
-
       this.pythonProcess.stdout.on('data', (data) => {
         debug('Received:', data.toString());
         data.toString().split('\u2404').forEach((res) => {
           if (res.length > 2) {
-            this.handlePythonData(res);
+            this.handlePythonData(JSON.parse(res));
           }
         });
+      });
+
+      // stderr is not used exclusively for errors,
+      // so we treat output here the same as we would a print statement.
+      this.pythonProcess.stderr.on('data', (data) => {
+        debug('Received on stderr:', data.toString());
+        this.handlePythonData({ body: data.toString(), status: 'PRINT' });
       });
 
       this.callPython({
@@ -90,8 +88,7 @@ class PyFi {
     this.pythonProcess.kill('SIGINT');
   }
 
-  handlePythonData(data) {
-    const res = JSON.parse(data);
+  handlePythonData(res) {
     const openProcess = this.pythonProcesses[res.pid];
 
     if (openProcess) {
