@@ -3,7 +3,7 @@
 # PyFi [![CircleCI](https://circleci.com/gh/IDEO-coLAB/pyfi/tree/master.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/IDEO-coLAB/pyfi/tree/master) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/IDEO-coLAB/pyfi/blob/master/LICENSE) [![npm](https://img.shields.io/npm/v/pyfi.svg)](https://www.npmjs.com/package/pyfi)
 
 
-Call Python functions from Node with an asynchronous architecture ✨
+Call Python functions from Node with an asynchronous architecture. Pair with [pyfi-client](https://github.com/ideo-colab/pyfi-client) to call Python functions from javascript clients ✨
 
 PyFi is designed for prototyping Node apps with data-driven Python backends. It runs Python as a subprocess of Node, which will get you up and running quickly for prototyping, but is not recommended for a production environment.
 
